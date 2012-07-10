@@ -1,179 +1,46 @@
 package org.codeandmagic.deferredobject;
 
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import org.codeandmagic.deferredobject.merge.*;
 
 /** User: cvrabie1 Date: 09/07/2012 */
-public abstract class DeferredObject<Resolved, Rejected, Progress> implements Promise<Resolved, Rejected, Progress> {
+public abstract class DeferredObject<Resolved, Rejected, Progress> extends AbstractPromise<Resolved,Rejected,Progress> {
 
-  public static Promise when(final Promise promise, Promise... promises){
-    if(promises.length == 0) return promise;
-    final Promise[] allPromises = new Promise[promises.length+1];
-    allPromises[0] = promise;
-    System.arraycopy(promises, 0 , allPromises, 1, promises.length);
-    return new MergedPromise(allPromises);
+  public static <R1, R2> Promise<MergedPromiseResult2<R1, R2>, MergedPromiseReject, MergedPromiseProgress>
+         when( final Promise<R1,?,?> p1, final Promise<R2,?,?> p2){
+    return new MergedPromise2(p1,p2);
   }
 
-  /*
-   * The state of this Deferred Object
-   */
-  private State state;
-  /**
-   * The value or this deferred object if it has been resolved or null otherwise
-   */
-  private Resolved resolved;
-  /**
-   * The rejection reason of this deferred object if it has been rejected or null otherwise
-   */
-  private Rejected rejected;
+  public static <R1, R2, R3> Promise<MergedPromiseResult3<R1, R2, R3>, MergedPromiseReject, MergedPromiseProgress>
+  when( final Promise<R1,?,?> p1, final Promise<R2,?,?> p2, final Promise<R3,?,?> p3){
+    return new MergedPromise3(p1,p2,p3);
+  }
 
-  protected final List<ResolveCallback<Resolved>> resolveCallbacks = new CopyOnWriteArrayList<ResolveCallback<Resolved>>();
-  protected final List<RejectCallback<Rejected>> rejectedCallbacks = new CopyOnWriteArrayList<RejectCallback<Rejected>>();
-  protected final List<ProgressCallback<Progress>> progressCallbacks = new CopyOnWriteArrayList<ProgressCallback<Progress>>();
-  protected final List<CompleteCallback<Resolved,Rejected>> completeCallbacks = new CopyOnWriteArrayList<CompleteCallback<Resolved,Rejected>>();
+  public static <R1, R2, R3, R4> Promise<MergedPromiseResult4<R1, R2, R3, R4>, MergedPromiseReject, MergedPromiseProgress>
+  when( final Promise<R1,?,?> p1, final Promise<R2,?,?> p2, final Promise<R3,?,?> p3, final Promise<R4,?,?> p4){
+    return new MergedPromise4(p1,p2,p3,p4);
+  }
 
-  @Override
-  public State getState() {
-    return state;
+  public static <R1, R2, R3, R4, R5> Promise<MergedPromiseResult5<R1, R2, R3, R4, R5>, MergedPromiseReject, MergedPromiseProgress>
+  when( final Promise<R1,?,?> p1, final Promise<R2,?,?> p2, final Promise<R3,?,?> p3, final Promise<R4,?,?> p4, final Promise<R5,?,?> p5){
+    return new MergedPromise5(p1,p2,p3,p4,p5);
+  }
+
+  public static Promise<Object[], MergedPromiseReject, MergedPromiseProgress> when( final Promise<?,?,?>[] promises ){
+    return new MergedPromiseN(promises);
   }
 
   @Override
-  public boolean isPending() {
-    return State.PENDING == state;
+  public final void notify(Progress progress) {
+    super.notify(progress);
   }
 
   @Override
-  public boolean isRejected() {
-    return State.REJECTED == state;
+  public final void resolve(Resolved resolved) {
+    super.resolve(resolved);
   }
 
   @Override
-  public boolean isResolved() {
-    return State.RESOLVED == state;
-  }
-
-  protected final void tryResolvedTrigger(){
-    if(isResolved()) triggerResolved();
-  }
-
-  protected final void triggerResolved(){
-    triggerCompleted();
-    for(final ResolveCallback<Resolved> r : resolveCallbacks){
-      r.onResolve(resolved);
-    }
-  }
-
-  public final void resolve(final Resolved resolved){
-    this.resolved = resolved;
-    this.state = State.RESOLVED;
-    triggerResolved();
-  }
-
-  protected final void tryRejectedTrigger(){
-    if(isRejected()) triggerRejected();
-  }
-
-  protected final void triggerRejected(){
-    triggerCompleted();
-    for(final RejectCallback<Rejected> r : rejectedCallbacks){
-      r.onReject(rejected);
-    }
-  }
-
-  public final void reject(final Rejected rejected){
-    this.rejected = rejected;
-    this.state = State.REJECTED;
-    triggerRejected();
-  }
-
-  protected final void tryCompleteTrigger(){
-    if(State.PENDING.compareTo(state) < 0) triggerCompleted();
-  }
-
-  protected final void triggerCompleted(){
-    for(final CompleteCallback<Resolved,Rejected> c : completeCallbacks){
-      c.onComplete( isResolved() ? resolved : null, isRejected() ? rejected : null );
-    }
-  }
-
-  public final void notify(final Progress progress){
-    if(State.PENDING.compareTo(state) < 0) return;
-    for(final ProgressCallback<Progress> p : progressCallbacks){
-      p.onProgress(progress);
-    }
-  }
-
-  @Override
-  public Promise<Resolved, Rejected, Progress> then(ResolveCallback<Resolved> onResolve,
-                                                    RejectCallback<Rejected> onReject,
-                                                    ProgressCallback<Progress> onProgress,
-                                                    CompleteCallback<Resolved, Rejected> onComplete) {
-    if(onResolve != null) resolveCallbacks.add(onResolve);
-    if(onReject != null) rejectedCallbacks.add(onReject);
-    if(onProgress != null) progressCallbacks.add(onProgress);
-    if(onComplete != null) completeCallbacks.add(onComplete);
-
-    if(onComplete != null) tryCompleteTrigger();
-    if(onResolve != null) tryResolvedTrigger();
-    if(onReject != null) tryRejectedTrigger();
-
-    return this;
-  }
-
-  @Override
-  public Promise<Resolved, Rejected, Progress> then(ResolveCallback<Resolved> onResolve,
-                                                    RejectCallback<Rejected> onReject,
-                                                    ProgressCallback<Progress> onProgress) {
-    return then(onResolve, onReject, onProgress, null);
-  }
-
-  @Override
-  public Promise<Resolved, Rejected, Progress> then(ResolveCallback<Resolved> onResolve) {
-    return then(onResolve, null, null);
-  }
-
-  @Override
-  public Promise<Resolved, Rejected, Progress> then(ResolveCallback<Resolved> onResolve,
-                                                    RejectCallback<Rejected> onReject) {
-    return then(onResolve, onReject, null);
-  }
-
-  @Override
-  public Promise<Resolved, Rejected, Progress> done(ResolveCallback<Resolved> onResolve) {
-    return then(onResolve);
-  }
-
-  @Override
-  public Promise<Resolved, Rejected, Progress> fail(RejectCallback<Rejected> onReject) {
-    return then(null, onReject);
-  }
-
-  @Override
-  public Promise<Resolved, Rejected, Progress> progress(ProgressCallback<Progress> onProgress) {
-    return then(null, null, onProgress);
-  }
-
-  @Override
-  public Promise<Resolved, Rejected, Progress> always(CompleteCallback<Resolved,Rejected> onComplete) {
-    return then(null, null, null, onComplete);
-  }
-
-  public Promise<Resolved, Rejected, Progress> promise(){
-    return this;
-  }
-
-  @Override
-  public <Resolved2, Rejected2, Progress2> Promise<Resolved2, Rejected2, Progress2>
-  pipe(final ResolveFilter<Resolved, Resolved2> resolveFilter,
-       final RejectFilter<Rejected, Rejected2> rejectFilter,
-       final ProgressFilter<Progress, Progress2> progressFilter){
-    return new PipedPromise<Resolved, Rejected, Progress, Resolved2, Rejected2, Progress2>(
-      this, resolveFilter, rejectFilter, progressFilter
-    );
-  }
-
-  @Override
-  public <Resolved2> Promise<Resolved2, Rejected, Progress> pipe(ResolveFilter<Resolved, Resolved2> resolvedFilter) {
-    return pipe(resolvedFilter, new PassThroughRejectFilter<Rejected>(), new PassThroughProgressFilter<Progress>());
+  public final void reject(Rejected rejected) {
+    super.reject(rejected);
   }
 }

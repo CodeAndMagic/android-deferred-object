@@ -1,8 +1,12 @@
 package org.codeandmagic.deferredobject;
 
+import org.codeandmagic.deferredobject.pipe.ProgressFilter;
+import org.codeandmagic.deferredobject.pipe.RejectFilter;
+import org.codeandmagic.deferredobject.pipe.ResolveFilter;
+
 /** User: cvrabie1 Date: 09/07/2012 */
 public class PipedPromise<Resolved1, Rejected1, Progress1, Resolved2, Rejected2, Progress2>
-  extends DeferredObject<Resolved2, Rejected2, Progress2>  {
+  extends AbstractPromise<Resolved2, Rejected2, Progress2>  {
 
   protected PipedPromise(final Promise<Resolved1, Rejected1, Progress1> pipedPromise,
                       final ResolveFilter<Resolved1, Resolved2> resolvedFilter,
@@ -26,7 +30,7 @@ public class PipedPromise<Resolved1, Rejected1, Progress1, Resolved2, Rejected2,
     pipedPromise.progress(new ProgressCallback<Progress1>() {
       @Override
       public void onProgress(Progress1 progress1) {
-        PipedPromise.this.notify( progressFilter.filterProgress(progress1) );
+        PipedPromise.this.notify(progressFilter.filterProgress(progress1));
       }
     });
   }
