@@ -14,10 +14,14 @@
 
 package org.codeandmagic.deferredobject;
 
-import org.codeandmagic.deferredobject.pipe.*;
-
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import org.codeandmagic.deferredobject.pipe.PassThroughProgressFilter;
+import org.codeandmagic.deferredobject.pipe.PassThroughRejectFilter;
+import org.codeandmagic.deferredobject.pipe.ProgressFilter;
+import org.codeandmagic.deferredobject.pipe.RejectFilter;
+import org.codeandmagic.deferredobject.pipe.ResolveFilter;
 
 /** User: cvrabie1 Date: 10/07/2012 */
 public class AbstractPromise<Resolved, Rejected, Progress> implements Promise<Resolved, Rejected, Progress> {
@@ -25,7 +29,7 @@ public class AbstractPromise<Resolved, Rejected, Progress> implements Promise<Re
   /*
   * The state of this Deferred Object
   */
-  private Promise.State state;
+	private Promise.State state = State.PENDING;
   /**
    * The value or this deferred object if it has been resolved or null otherwise
    */
