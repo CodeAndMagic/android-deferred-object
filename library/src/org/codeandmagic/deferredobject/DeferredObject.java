@@ -164,11 +164,16 @@ public abstract class DeferredObject<Resolved, Rejected, Progress> implements Pr
 
   @Override
   public <Resolved2, Rejected2, Progress2> Promise<Resolved2, Rejected2, Progress2>
-  pipe(final PipedPromise.ResolveFilter<Resolved, Resolved2> resolveFilter,
-       final PipedPromise.RejectFilter<Rejected, Rejected2> rejectFilter,
-       final PipedPromise.ProgressFilter<Progress, Progress2> progressFilter){
+  pipe(final ResolveFilter<Resolved, Resolved2> resolveFilter,
+       final RejectFilter<Rejected, Rejected2> rejectFilter,
+       final ProgressFilter<Progress, Progress2> progressFilter){
     return new PipedPromise<Resolved, Rejected, Progress, Resolved2, Rejected2, Progress2>(
       this, resolveFilter, rejectFilter, progressFilter
     );
+  }
+
+  @Override
+  public <Resolved2> Promise<Resolved2, Rejected, Progress> pipe(ResolveFilter<Resolved, Resolved2> resolvedFilter) {
+    return pipe(resolvedFilter, new PassThroughRejectFilter<Rejected>(), new PassThroughProgressFilter<Progress>());
   }
 }

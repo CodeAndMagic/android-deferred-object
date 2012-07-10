@@ -4,18 +4,6 @@ package org.codeandmagic.deferredobject;
 public class PipedPromise<Resolved1, Rejected1, Progress1, Resolved2, Rejected2, Progress2>
   extends DeferredObject<Resolved2, Rejected2, Progress2>  {
 
-  public static interface ResolveFilter<Resolved1,Resolved2>{
-    public Resolved2 filterResolved(Resolved1 resolved);
-  }
-
-  public static interface RejectFilter<Rejected1, Rejected2>{
-    public Rejected2 filterRejected(Rejected1 rejected);
-  }
-
-  public static interface ProgressFilter<Progress1, Progress2>{
-    public Progress2 filterProgress(Progress1 progress);
-  }
-
   protected PipedPromise(final Promise<Resolved1, Rejected1, Progress1> pipedPromise,
                       final ResolveFilter<Resolved1, Resolved2> resolvedFilter,
                       final RejectFilter<Rejected1, Rejected2> rejectedFilter,
