@@ -17,6 +17,7 @@ package org.codeandmagic.deferredobject;
 import org.codeandmagic.deferredobject.pipe.ProgressFilter;
 import org.codeandmagic.deferredobject.pipe.RejectFilter;
 import org.codeandmagic.deferredobject.pipe.ResolveFilter;
+import org.codeandmagic.deferredobject.pipe.ResolvePipe;
 
 /** User: cvrabie1 Date: 09/07/2012 */
 public interface Promise<Resolved, Rejected, Progress> {
@@ -47,14 +48,18 @@ public interface Promise<Resolved, Rejected, Progress> {
   public Promise<Resolved, Rejected, Progress> progress(final ProgressCallback<Progress> onProgress);
 
 
-
   public <Resolved2, Rejected2, Progress2> Promise<Resolved2, Rejected2, Progress2>
          pipe(final ResolveFilter<Resolved, Resolved2> resolveFilter,
               final RejectFilter<Rejected, Rejected2> rejectFilter,
               final ProgressFilter<Progress, Progress2> progressFilter);
 
+  public <Resolved2, Rejected2, Progress2> Promise<Resolved2, Rejected2, Progress2>
+          pipe(final ResolvePipe<Resolved, Resolved2, Rejected2, Progress2> resolvedPipe);
+
   public  <Resolved2> Promise<Resolved2, Rejected, Progress>
           pipe(final ResolveFilter<Resolved, Resolved2> resolveFilter);
+
+
 
 }
 

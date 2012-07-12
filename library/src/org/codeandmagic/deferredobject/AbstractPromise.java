@@ -14,14 +14,10 @@
 
 package org.codeandmagic.deferredobject;
 
+import org.codeandmagic.deferredobject.pipe.*;
+
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-
-import org.codeandmagic.deferredobject.pipe.PassThroughProgressFilter;
-import org.codeandmagic.deferredobject.pipe.PassThroughRejectFilter;
-import org.codeandmagic.deferredobject.pipe.ProgressFilter;
-import org.codeandmagic.deferredobject.pipe.RejectFilter;
-import org.codeandmagic.deferredobject.pipe.ResolveFilter;
 
 /** User: cvrabie1 Date: 10/07/2012 */
 public class AbstractPromise<Resolved, Rejected, Progress> implements Promise<Resolved, Rejected, Progress> {
@@ -104,7 +100,7 @@ public class AbstractPromise<Resolved, Rejected, Progress> implements Promise<Re
 
   protected final void triggerCompleted(){
     for(final CompleteCallback<Resolved,Rejected> c : completeCallbacks){
-      c.onComplete( isResolved() ? resolved : null, isRejected() ? rejected : null );
+      c.onComplete(isResolved() ? resolved : null, isRejected() ? rejected : null);
     }
   }
 
@@ -185,6 +181,19 @@ public class AbstractPromise<Resolved, Rejected, Progress> implements Promise<Re
   @Override
   public <Resolved2> Promise<Resolved2, Rejected, Progress> pipe(ResolveFilter<Resolved, Resolved2> resolvedFilter) {
     return pipe(resolvedFilter, new PassThroughRejectFilter<Rejected>(), new PassThroughProgressFilter<Progress>());
+  }
+
+  @Override
+  public <Resolved2, Rejected2, Progress2> Promise<Resolved2, Rejected2, Progress2>
+  pipe(final ResolvePipe<Resolved, Resolved2, Rejected2, Progress2> resolvePipe) {
+    final PromiseProxy<Resolved2, Rejected2, Progress2> lazyPromise = new PromiseProxy<Resolved2, Rejected2, Progress2>();
+    this.done(new ResolveCallback<Resolved>() {
+      @Override
+      public void onResolve(Resolved resolved) {
+        lazyPromise.setProxiedPromise(resolvePipe.pipeResolved(resolved));
+      }
+    });
+    return lazyPromise;
   }
 
 
