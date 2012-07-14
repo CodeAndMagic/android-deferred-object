@@ -41,7 +41,7 @@ public class AbstractPromise<Resolved, Rejected, Progress> implements Promise<Re
   protected final List<CompleteCallback<Resolved,Rejected>> completeCallbacks = new CopyOnWriteArrayList<CompleteCallback<Resolved,Rejected>>();
 
   @Override
-  public Promise.State getState() {
+  public Promise.State state() {
     return state;
   }
 
@@ -60,10 +60,6 @@ public class AbstractPromise<Resolved, Rejected, Progress> implements Promise<Re
     return Promise.State.RESOLVED == state;
   }
 
-  protected final void tryResolvedTrigger(){
-    if(isResolved()) triggerResolved();
-  }
-
   protected final void triggerResolved(){
     triggerCompleted();
     for(final ResolveCallback<Resolved> r : resolveCallbacks){
@@ -77,10 +73,6 @@ public class AbstractPromise<Resolved, Rejected, Progress> implements Promise<Re
     triggerResolved();
   }
 
-  protected final void tryRejectedTrigger(){
-    if(isRejected()) triggerRejected();
-  }
-
   protected final void triggerRejected(){
     triggerCompleted();
     for(final RejectCallback<Rejected> r : rejectedCallbacks){
@@ -92,10 +84,6 @@ public class AbstractPromise<Resolved, Rejected, Progress> implements Promise<Re
     this.rejected = rejected;
     this.state = Promise.State.REJECTED;
     triggerRejected();
-  }
-
-  protected final void tryCompleteTrigger(){
-    if(Promise.State.PENDING.compareTo(state) < 0) triggerCompleted();
   }
 
   protected final void triggerCompleted(){
@@ -121,9 +109,9 @@ public class AbstractPromise<Resolved, Rejected, Progress> implements Promise<Re
     if(onProgress != null) progressCallbacks.add(onProgress);
     if(onComplete != null) completeCallbacks.add(onComplete);
 
-    if(onComplete != null) tryCompleteTrigger();
-    if(onResolve != null) tryResolvedTrigger();
-    if(onReject != null) tryRejectedTrigger();
+    if(onComplete != null) if(!isPending()) onComplete.onComplete(resolved, rejected);
+    if(onResolve != null) if(isResolved()) onResolve.onResolve(resolved);
+    if(onReject != null) if(isRejected()) onReject.onReject(rejected);
 
     return this;
   }

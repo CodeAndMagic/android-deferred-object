@@ -5,6 +5,7 @@ import java.util.List;
 import org.codeandmagic.deferredobject.CompleteCallback;
 import org.codeandmagic.deferredobject.DeferredObject;
 import org.codeandmagic.deferredobject.ProgressCallback;
+import org.codeandmagic.deferredobject.Promise.State;
 import org.codeandmagic.deferredobject.RejectCallback;
 import org.codeandmagic.deferredobject.ResolveCallback;
 
@@ -105,6 +106,7 @@ public class DeferredObjectTest extends TestCase {
 	public void testDoneTrigger(){
 		def.done(rs1).done(rs2).always(co1).fail(rj1).progress(pr1);
 		def.resolve(new Object());
+		assertEquals(State.RESOLVED, def.state());
 		assertEquals(1, rs1.called);
 		assertEquals(1, rs2.called);
 		assertEquals(1, co1.called);
@@ -115,6 +117,7 @@ public class DeferredObjectTest extends TestCase {
 	public void testRejectTrigger(){
 		def.done(rs1).done(rs2).always(co1).fail(rj1).progress(pr1);
 		def.reject(new Object());
+		assertEquals(State.REJECTED, def.state());
 		assertEquals(0, rs1.called);
 		assertEquals(0, rs2.called);
 		assertEquals(1, co1.called);
@@ -125,11 +128,29 @@ public class DeferredObjectTest extends TestCase {
 	public void testProgressTrigger(){
 		def.done(rs1).done(rs2).always(co1).fail(rj1).progress(pr1);
 		def.notify(new Object());
+		assertEquals(State.PENDING, def.state());
 		assertEquals(0, rs1.called);
 		assertEquals(0, rs2.called);
 		assertEquals(0, co1.called);
 		assertEquals(0, rj1.called);
 		assertEquals(1, pr1.called);
+	}
+	
+	public void testBindAfterResolve(){
+		assertEquals(State.PENDING, def.state());
+		def.resolve(new Object());
+		assertEquals(State.RESOLVED, def.state());
+		def.done(rs1);
+		assertEquals(1, rs1.called); //the callback gets called even if the deferred was resolved before the bind
+		assertEquals(0, rs2.called);
+		def.done(rs2);
+		assertEquals(1, rs1.called); //each callback gets called only once
+		assertEquals(1, rs2.called);
+		assertEquals(0, co1.called);
+		def.always(co1);
+		assertEquals(1, co1.called);
+		assertEquals(1, rs1.called); //each callback gets called only once
+		assertEquals(1, rs2.called);
 	}
 	
 }

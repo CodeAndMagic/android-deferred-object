@@ -26,7 +26,7 @@ public interface Promise<Resolved, Rejected, Progress> {
     PENDING, REJECTED, RESOLVED
   }
 
-  public State getState();
+  public State state();
   public boolean isPending();
   public boolean isRejected();
   public boolean isResolved();
