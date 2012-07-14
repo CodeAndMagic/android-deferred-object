@@ -39,36 +39,32 @@ public class DeferredObjectTest extends TestCase {
 		}
 	}
 	
-	public static ResolveCallback<Object> resolved() {
-		return new ResolveCallback<Object>() {
-			@Override public void onResolve(Object resolved) {}
-		}; 
+	public static class InspectableResolveCallback implements ResolveCallback<Object> {
+		public int called = 0;
+		@Override public void onResolve(Object resolved) { ++called; }
 	}
 	
-	public static RejectCallback<Object> rejected() {
-		return new RejectCallback<Object>() {
-			@Override public void onReject(Object resolved) {}
-		};
+	public static class InspectableRejectCallback implements RejectCallback<Object> {
+		public int called = 0;
+		@Override public void onReject(Object resolved) { ++called; }
 	}; 
 	
-	public static ProgressCallback<Object> progress() {
-		return new ProgressCallback<Object>() {
-			@Override public void onProgress(Object progress) {}
-		};
+	public static class InspectableProgressCallback implements ProgressCallback<Object> {
+		public int called = 0;
+		@Override public void onProgress(Object progress) { ++called; }
 	}
 	
-	public static CompleteCallback<Object,Object> complete() {
-		return new CompleteCallback<Object, Object>() {
-			@Override public void onComplete(Object resolved, Object rejected) {}
-		};
+	public static class InspectableCompleteCallback implements CompleteCallback<Object,Object> {
+		public int called = 0;
+		@Override public void onComplete(Object resolved, Object rejected) { ++called; }
 	}
 	
 	InspectableDeferred def = new InspectableDeferred();
-	ResolveCallback<Object> rs1 = resolved();
-	ResolveCallback<Object> rs2 = resolved();	
-	RejectCallback<Object> rj1 = rejected();
-	CompleteCallback<Object, Object> co1 = complete();
-	ProgressCallback<Object> pr1 = progress();
+	InspectableResolveCallback rs1 = new InspectableResolveCallback();
+	InspectableResolveCallback rs2 = new InspectableResolveCallback();	
+	InspectableRejectCallback rj1 = new InspectableRejectCallback();
+	InspectableCompleteCallback co1 = new InspectableCompleteCallback();
+	InspectableProgressCallback pr1 = new InspectableProgressCallback();
 				
 	public void testResolvedCallbackAdd(){	
 		assertEquals(0, def.rsl());
@@ -104,6 +100,36 @@ public class DeferredObjectTest extends TestCase {
 		assertEquals(1, def.rjl());
 		assertEquals(1, def.prl());
 		assertEquals(1, def.col());
+	}
+	
+	public void testDoneTrigger(){
+		def.done(rs1).done(rs2).always(co1).fail(rj1).progress(pr1);
+		def.resolve(new Object());
+		assertEquals(1, rs1.called);
+		assertEquals(1, rs2.called);
+		assertEquals(1, co1.called);
+		assertEquals(0, rj1.called);
+		assertEquals(0, pr1.called);
+	}
+	
+	public void testRejectTrigger(){
+		def.done(rs1).done(rs2).always(co1).fail(rj1).progress(pr1);
+		def.reject(new Object());
+		assertEquals(0, rs1.called);
+		assertEquals(0, rs2.called);
+		assertEquals(1, co1.called);
+		assertEquals(1, rj1.called);
+		assertEquals(0, pr1.called);
+	}
+	
+	public void testProgressTrigger(){
+		def.done(rs1).done(rs2).always(co1).fail(rj1).progress(pr1);
+		def.notify(new Object());
+		assertEquals(0, rs1.called);
+		assertEquals(0, rs2.called);
+		assertEquals(0, co1.called);
+		assertEquals(0, rj1.called);
+		assertEquals(1, pr1.called);
 	}
 	
 }
