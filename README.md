@@ -126,6 +126,6 @@ new DeferredAsyncTask<HttpResponse,HttpResponse,Void>() {...}
 
 **See the main article on [Piping Promises](android-deferred-object/wiki/Piping-Promises)**
 
-** What are those generics you keep throwing arround
+## What are those generics you keep throwing around?
 
 **See the main article on [The Promise Interface](android-deferred-object/wiki/The-Promise-Interface)**
