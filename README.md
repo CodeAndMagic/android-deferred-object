@@ -15,21 +15,21 @@ You can pipe promises so the pieces of asynchronous code gets executed serially 
 
 ## Why are you using both Promise and DeferredObject terms?
 
-A **Promise** is a immutable version of a **DeferredObject**. All DeferredObjects are Promises which is the most generic term is preferred. Not all Promises are necessarily a DeferredObject. 
+A **Promise** is a immutable version of a **DeferredObject**. All DeferredObjects are Promises which is the most generic term and it's preferred. Not all Promises are necessarily a DeferredObject. 
 
-On a DeferredObject you have access to the actual **resolve** and **reject** methods which is obviously useful when you want to write you're own Deferred. But most library code should return a Promise to prevent users of that library to mess with the internal workings of the library. For example in case of a async HTTP call if would be weird if someone other than the actual piece of code that does the HTTP call fires the resolved callbacks.
+On a DeferredObject you have access to the actual **resolve** and **reject** methods which is obviously useful when you want to write your own Deferred. But most library code should return a Promise to prevent users of that library to mess with the internal workings of the library. For example in case of a async HTTP call if would be weird if someone other than the actual piece of code that does the HTTP call fires the resolved callbacks.
 
 ## Why/When should I use the Deferred Object / Promise pattern?
 The DeferredObject/Promise pattern can help you to better organise your code, especially the asynchronous type. It also makes it really easy to merge and pipe the execution of different pieces of asynchronous code, which otherwise would get really messy to code. 
 
-We also have wrappers for common Android tasks like AsyncTask which makes it trivial to use DeferredObject in an Android program and combine that with your own DeferredObjects.
+We also have wrappers for common Android tasks like AsyncTask which makes it trivial to use Promise/DeferredObject in an Android program and combine that with your own DeferredObjects.
 
-In fact we think that DeferredObject makes handling of async code so easy that it encourages your to use more of it which will improve the responsiveness of your interface.
+In fact we think that DeferredObject makes handling of async code so easy that it encourages your to use more of it which will improve the responsiveness of your app.
 
 ## Common Use Cases
 ### Success and Failure callbacks for a task
 
-Let's say you need to do something asynchronously like a HTTP request. You can wrap that request into a DeferredAsyncTask and attach callbacks to this action. (note that for HTTP requests we provide you with DeferredHttpUrlConnection or DeferredHttpRequest which makes it even more easy to use but we'll exemplify this scenario with a DeferredAsyncTask so you get the hang of how the pattern works and how you can extend it for your own tasks).
+Let's say you need to do something asynchronously like a HTTP request. You can wrap that request into a DeferredAsyncTask and attach callbacks to this action. (note that for HTTP requests we provide you with DeferredHttpUrlConnection or DeferredHttpRequest which makes it even more easy to use but we'll exemplify this scenario with a DeferredAsyncTask so you get the hang of how the pattern works and how you can extend it for your own purposes).
 
 ``` java
 new DeferredAsyncTask<HttpResponse,HttpResponse,Void>() {
@@ -49,16 +49,16 @@ new DeferredAsyncTask<HttpResponse,HttpResponse,Void>() {
 });
 ```
 
-**See the main article on [Promise-Callbacks](android-deferred-object/wiki/Promise-Callbacks) to see how you can add multiple success or failure callbacks, how to add  callbacks that get triggered both in case of success and failure, how to add a callback that will get triggered for progress notifications and how you can add callbacks for activities that already finished.**
+**See the main article on [Promise-Callbacks](android-deferred-object/wiki/Promise-Callbacks) to see how you can add multiple success or failure callbacks, how to add callbacks that get triggered both in case of success and failure, how to add a callback that will get triggered for progress notifications and how you can add callbacks for activities that already finished.**
 
 ### Merging several promises 
 
 Let's say that you need to do several async tasks and when they're all done you want to execute a piece of code. You can easily handle this my **merging** those promises with the **DeferredObject.when** method.
 
 ``` java
-Promise<A1,B1,C1> p1 = new DeferredAsyncTask<HttpResponse,HttpResponse,Void>() { ... }; 
-Promise<A2,B2,C2> p1 = new DeferredAsyncTask<HttpResponse,HttpResponse,Void>() { ... };
-Promise<A3,B3,C3> p3 = new DeferredAsyncTask<HttpResponse,HttpResponse,Void>() { ... };
+Promise<A1,B1,C1> p1 = new DeferredAsyncTask<A1,B1,C1>() { ... }; 
+Promise<A2,B2,C2> p1 = new DeferredAsyncTask<A2,B2,C2>() { ... };
+Promise<A3,B3,C3> p3 = new DeferredAsyncTask<A3,B3,C3>() { ... };
 //when gives you a new promise that gets triggered when all the merged promises are resolved or one of them fails
 DeferredObject.when(p1,p2,p3)
 .done(new ResolveCallback<MergedPromiseResult3<A1,A2,A3>() {
@@ -86,10 +86,11 @@ DeferredObject.when(p1,p2).done(...).fail(...)
 
 ### Piping and filtering deferreds 
 
-Let's say that you need to do an async piece of code like two http calls in response to another async piece of code. Obviously you could write the dependant call in the done callback of the first call, and sometimes that's the right approach. However now you will be forced to add the callbacks to the second call in the callback of the first one. If you have several of these dependencies it will get (horizontally) awkward really fast.
+Let's say that you need to do an async piece of code, like a HTTP call, in response to another async piece of code. Obviously you could write the dependant call in the done callback of the first call, and sometimes that's the right approach. However now you will be forced to write the code that adds the callbacks to the second call in the done callback of the first one. If you have several of these dependencies it will get (horizontally) awkward really fast.
 
 ``` java
-new DeferredAsyncTask<HttpResponse,HttpResponse,Void>() {...}.done( new ResolveCallback<HttpResponse> {
+new DeferredAsyncTask<HttpResponse,HttpResponse,Void>() {...}
+.done( new ResolveCallback<HttpResponse> {
     public void onResolve(HttpResponse resolved) {
         //callback to first call here
         new DeferredAsyncTask<HttpResponse,HttpResponse,Void>() {...}
@@ -124,3 +125,7 @@ new DeferredAsyncTask<HttpResponse,HttpResponse,Void>() {...}
 ```
 
 **See the main article on [Piping Promises](android-deferred-object/wiki/Piping-Promises)**
+
+** What are those generics you keep throwing arround
+
+**See the main article on [The Promise Interface](android-deferred-object/wiki/The-Promise-Interface)**
