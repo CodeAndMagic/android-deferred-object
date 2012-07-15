@@ -49,7 +49,7 @@ new DeferredAsyncTask<HttpResponse,HttpResponse,Void>() {
 });
 ```
 
-**See the main article on [Promise-Callbacks](wiki/Promise-Callbacks) to see how you can add multiple success or failure callbacks, how to add  callbacks that get triggered both in case of success and failure, how to add a callback that will get triggered for progress notifications and how you can add callbacks for activities that already finished.**
+**See the main article on [Promise-Callbacks](android-deferred-object/wiki/Promise-Callbacks) to see how you can add multiple success or failure callbacks, how to add  callbacks that get triggered both in case of success and failure, how to add a callback that will get triggered for progress notifications and how you can add callbacks for activities that already finished.**
 
 ### Merging several promises 
 
@@ -82,7 +82,7 @@ p1.done(...).fail(...)
 DeferredObject.when(p1,p2).done(...).fail(...)
 ```
 
-**See the main article on [Merging Promises](wiki/Merging-Promises)**
+**See the main article on [Merging Promises](android-deferred-object/wiki/Merging-Promises)**
 
 ### Piping and filtering deferreds 
 
@@ -122,3 +122,5 @@ new DeferredAsyncTask<HttpResponse,HttpResponse,Void>() {...}
 })
 .done( /* callback to third call here */ )
 ```
+
+**See the main article on [Piping Promises](android-deferred-object/wiki/Piping-Promises)**
