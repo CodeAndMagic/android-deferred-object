@@ -1,15 +1,60 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              android:padding="32dp"
+              android:gravity="center_horizontal">
+
+
+    <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp">
+
+        <TextView
+                android:id="@+id/progress1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableTop="@drawable/bullet"
+                android:drawablePadding="8dp"
+                android:gravity="center"
+                android:text="@string/no_progress"/>
+
+        <TextView
+                android:id="@+id/progress2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="32dp"
+                android:drawableTop="@drawable/bullet"
+                android:drawablePadding="8dp"
+                android:gravity="center"
+                android:text="@string/no_progress"/>
+
+        <TextView
+                android:id="@+id/progress3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="32dp"
+                android:drawableTop="@drawable/bullet"
+                android:drawablePadding="8dp"
+                android:gravity="center"
+                android:text="@string/no_progress"/>
+    </LinearLayout>
+
+
+    <Button
+            android:id="@+id/start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:minWidth="150dp"
+            android:text="@string/start"/>
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:padding="@dimen/padding_medium"
-        android:text="@string/app_name"
-        tools:context=".MainActivity" />
-
-</RelativeLayout>
+            android:id="@+id/log"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:singleLine="false"
+            android:minLines="3"/>
+</LinearLayout>

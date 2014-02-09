@@ -21,7 +21,7 @@ public abstract class DeferredAsyncTask<Resolved, Rejected, Progress> extends
 			@Override
 			protected void onPostExecute(Resolved resolved) {
 				if (null == resolved) DeferredAsyncTask.this
-						.reject(convertExceptionToFailure(exception));
+                    .reject(convertExceptionToFailure(exception));
 				else {
 					final Rejected rejected = convertResultToFailure(resolved);
 					if (null == rejected) DeferredAsyncTask.this.resolve(resolved);

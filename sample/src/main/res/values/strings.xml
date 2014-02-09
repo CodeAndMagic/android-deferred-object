@@ -2,4 +2,8 @@
     <string name="app_name">Deferred Object Sample</string>
 
     <string name="menu_settings">Settings</string>
+    <string name="start">Start Three Tasks</string>
+    <string name="no_progress">-</string>
+    <string name="all_done">All Done!</string>
+    <string name="failure">Failure!</string>
 </resources>

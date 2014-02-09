@@ -5,7 +5,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class DeferredHttpUrlConnection extends
-		DeferredAsyncTask<HttpURLConnection, HttpURLConnection, Void> {
+		DeferredAsyncTask<HttpURLConnection, HttpURLConnection, Float> {
 
 	private final URL url;
 
