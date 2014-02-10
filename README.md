@@ -33,7 +33,7 @@ Let's say you need to do something asynchronously like a HTTP request. You can w
 
 ``` java
 new DeferredAsyncTask<HttpResponse,HttpResponse,Void>() {
-    protected abstract Resolved doInBackground() throws Exception {
+    protected abstract Success doInBackground() throws Exception {
        //do your async code here
     }
 }

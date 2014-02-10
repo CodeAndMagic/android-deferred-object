@@ -87,22 +87,22 @@ public class MainActivity extends ActionBarActivity {
                     }
                     out = new BufferedOutputStream(new FileOutputStream(path));
                     final byte[] buf = new byte[1024];
-                    downloadPromise.notify(0f);
+                    downloadPromise.progress(0f);
                     int read = 0;
                     while ((read = in.read(buf)) > 0) {
                         downloaded += read;
                         out.write(buf);
                         if (length > 0){
                             float percent = ((float)downloaded*100)/length;
-                            downloadPromise.notify(percent);
+                            downloadPromise.progress(percent);
                         }
                     }
                     out.flush();
-                    downloadPromise.notify(100f);
-                    downloadPromise.resolve(path.getAbsolutePath());
+                    downloadPromise.progress(100f);
+                    downloadPromise.success(path.getAbsolutePath());
                 } catch (IOException e) {
                     e.printStackTrace();
-                    downloadPromise.reject(e);
+                    downloadPromise.failure(e);
                 } finally {
                     if (in != null) try {
                         in.close();
@@ -171,24 +171,24 @@ public class MainActivity extends ActionBarActivity {
 
         Promise<String, Throwable, Float> task1 = new DeferredHttpUrlConnection(new URL(EARTH))
                 .pipe(downloadFilter("earth.jpg"))
-                .progress(progressReporter(progress1))
-                .done(successReporter(progress1))
-                .fail(failReporter("task 1"));
+                .onProgress(progressReporter(progress1))
+                .onSuccess(successReporter(progress1))
+                .onFailure(failReporter("task 1"));
 
         Promise<String, Throwable, Float> task2 = new DeferredHttpUrlConnection(new URL(MARS))
                 .pipe(downloadFilter("mars.png"))
-                .progress(progressReporter(progress2))
-                .done(successReporter(progress2))
-                .fail(failReporter("task 2"));
+                .onProgress(progressReporter(progress2))
+                .onSuccess(successReporter(progress2))
+                .onFailure(failReporter("task 2"));
 
         Promise<String, Throwable, Float> task3 = new DeferredHttpUrlConnection(new URL(VENUS))
                 .pipe(downloadFilter("venus.jpg"))
-                .progress(progressReporter(progress3))
-                .done(successReporter(progress3))
-                .fail(failReporter("task 3"));
+                .onProgress(progressReporter(progress3))
+                .onSuccess(successReporter(progress3))
+                .onFailure(failReporter("task 3"));
 
         DeferredObject.when(task1, task2, task3)
-            .done(new ResolveCallback<MergedPromiseResult3<String, String, String>>() {
+            .onSuccess(new ResolveCallback<MergedPromiseResult3<String, String, String>>() {
                 @Override
                 public void onResolve(MergedPromiseResult3<String, String, String> stringStringStringMergedPromiseResult3) {
                     runOnUiThread(new Runnable() {
@@ -199,18 +199,18 @@ public class MainActivity extends ActionBarActivity {
                         }
                     });
                 }
-            }).fail(new RejectCallback<MergedPromiseReject>() {
-                @Override
-                public void onReject(MergedPromiseReject mergedPromiseReject) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            start.setText(R.string.failure);
-                            start.setEnabled(true);
-                        }
-                    });
-                }
-            });
+            }).onFailure(new RejectCallback<MergedPromiseReject>() {
+            @Override
+            public void onReject(MergedPromiseReject mergedPromiseReject) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        start.setText(R.string.failure);
+                        start.setEnabled(true);
+                    }
+                });
+            }
+        });
     }
 
     private void done(TextView progress) {

@@ -14,59 +14,23 @@
 
 package org.codeandmagic.deferredobject;
 
-import org.codeandmagic.deferredobject.merge.MergedPromise2;
-import org.codeandmagic.deferredobject.merge.MergedPromise3;
-import org.codeandmagic.deferredobject.merge.MergedPromise4;
-import org.codeandmagic.deferredobject.merge.MergedPromise5;
-import org.codeandmagic.deferredobject.merge.MergedPromiseN;
-import org.codeandmagic.deferredobject.merge.MergedPromiseProgress;
-import org.codeandmagic.deferredobject.merge.MergedPromiseReject;
-import org.codeandmagic.deferredobject.merge.MergedPromiseResult2;
-import org.codeandmagic.deferredobject.merge.MergedPromiseResult3;
-import org.codeandmagic.deferredobject.merge.MergedPromiseResult4;
-import org.codeandmagic.deferredobject.merge.MergedPromiseResult5;
+/**
+ * User: cvrabie1 Date: 09/07/2012
+ */
+public abstract class DeferredObject<Success, Failure, Progress> extends AbstractPromise<Success, Failure, Progress> {
 
-/** User: cvrabie1 Date: 09/07/2012 */
-public abstract class DeferredObject<Resolved, Rejected, Progress> extends AbstractPromise<Resolved,Rejected,Progress> {
+    @Override
+    public final void progress(Progress progress) {
+        super.progress(progress);
+    }
 
-  public static <R1, R2> Promise<MergedPromiseResult2<R1, R2>, MergedPromiseReject, MergedPromiseProgress>
-         when( final Promise<R1,?,?> p1, final Promise<R2,?,?> p2){
-		return new MergedPromise2<MergedPromiseResult2<R1, R2>, R1, R2>(p1, p2);
-  }
+    @Override
+    public final void success(Success resolved) {
+        super.success(resolved);
+    }
 
-  public static <R1, R2, R3> Promise<MergedPromiseResult3<R1, R2, R3>, MergedPromiseReject, MergedPromiseProgress>
-  when( final Promise<R1,?,?> p1, final Promise<R2,?,?> p2, final Promise<R3,?,?> p3){
-		return new MergedPromise3<MergedPromiseResult3<R1, R2, R3>, R1, R2, R3>(p1, p2, p3);
-  }
-
-  public static <R1, R2, R3, R4> Promise<MergedPromiseResult4<R1, R2, R3, R4>, MergedPromiseReject, MergedPromiseProgress>
-  when( final Promise<R1,?,?> p1, final Promise<R2,?,?> p2, final Promise<R3,?,?> p3, final Promise<R4,?,?> p4){
-		return new MergedPromise4<MergedPromiseResult4<R1, R2, R3, R4>, R1, R2, R3, R4>(p1, p2, p3,
-				p4);
-  }
-
-  public static <R1, R2, R3, R4, R5> Promise<MergedPromiseResult5<R1, R2, R3, R4, R5>, MergedPromiseReject, MergedPromiseProgress>
-  when( final Promise<R1,?,?> p1, final Promise<R2,?,?> p2, final Promise<R3,?,?> p3, final Promise<R4,?,?> p4, final Promise<R5,?,?> p5){
-		return new MergedPromise5<MergedPromiseResult5<R1, R2, R3, R4, R5>, R1, R2, R3, R4, R5>(p1,
-				p2, p3, p4, p5);
-  }
-
-  public static Promise<Object[], MergedPromiseReject, MergedPromiseProgress> when( final Promise<?,?,?>[] promises ){
-    return new MergedPromiseN(promises);
-  }
-
-  @Override
-  public final void notify(Progress progress) {
-    super.notify(progress);
-  }
-
-  @Override
-  public final void resolve(Resolved resolved) {
-    super.resolve(resolved);
-  }
-
-  @Override
-  public final void reject(Rejected rejected) {
-    super.reject(rejected);
-  }
+    @Override
+    public final void failure(Failure failure) {
+        super.failure(failure);
+    }
 }

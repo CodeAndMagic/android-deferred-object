@@ -14,52 +14,130 @@
 
 package org.codeandmagic.deferredobject;
 
-import org.codeandmagic.deferredobject.pipe.ProgressFilter;
-import org.codeandmagic.deferredobject.pipe.RejectFilter;
-import org.codeandmagic.deferredobject.pipe.ResolveFilter;
-import org.codeandmagic.deferredobject.pipe.ResolvePipe;
+/**
+ * User: cvrabie1 Date: 09/07/2012
+ */
+public interface Promise<Success, Failure, Progress> {
 
-/** User: cvrabie1 Date: 09/07/2012 */
-public interface Promise<Resolved, Rejected, Progress> {
+    public enum State {
+        PENDING, FAILED, SUCCESS
+    }
 
-  public enum State {
-    PENDING, REJECTED, RESOLVED
-  }
+    public State state();
 
-  public State state();
-  public boolean isPending();
-  public boolean isRejected();
-  public boolean isResolved();
+    public boolean isPending();
 
-  public Promise<Resolved, Rejected, Progress> then(final ResolveCallback<Resolved> onResolve);
+    public boolean isFailure();
 
-  public Promise<Resolved, Rejected, Progress> then(final ResolveCallback<Resolved> onResolve, final RejectCallback<Rejected> onReject);
+    public boolean isSuccess();
 
-  public Promise<Resolved, Rejected, Progress> then(final ResolveCallback<Resolved> onResolve, final RejectCallback<Rejected> onReject, final ProgressCallback<Progress> onProgress);
+    /* -------------------------------------------------------------------------------------- */
+    // Completion handlers
+    /* -------------------------------------------------------------------------------------- */
 
-  public Promise<Resolved, Rejected, Progress> then(final ResolveCallback<Resolved> onResolve, final RejectCallback<Rejected> onReject, final ProgressCallback<Progress> onProgress, final CompleteCallback<Resolved, Rejected> onComplete);
+    /**
+     * Called when the operation completes, either successfully or with an exception.
+     *
+     * @param onComplete
+     * @return
+     */
+    public Promise<Success, Failure, Progress> onComplete(final Callback<Either<Failure, Success>> onComplete);
 
-  public Promise<Resolved, Rejected, Progress> always(final CompleteCallback<Resolved, Rejected> onComplete);
+    /**
+     * Called when the operation completes with success.
+     *
+     * @param onSuccess
+     * @return
+     */
+    public Promise<Success, Failure, Progress> onSuccess(final Callback<Success> onSuccess);
 
-  public Promise<Resolved, Rejected, Progress> done(final ResolveCallback<Resolved> onResolve);
+    /**
+     * Called when the operation completes with a failure.
+     *
+     * @param onFailure
+     * @return
+     */
+    public Promise<Success, Failure, Progress> onFailure(final Callback<Failure> onFailure);
 
-  public Promise<Resolved, Rejected, Progress> fail(final RejectCallback<Rejected> onReject);
-
-  public Promise<Resolved, Rejected, Progress> progress(final ProgressCallback<Progress> onProgress);
-
-
-  public <Resolved2, Rejected2, Progress2> Promise<Resolved2, Rejected2, Progress2>
-         pipe(final ResolveFilter<Resolved, Resolved2> resolveFilter,
-			  final RejectFilter<Rejected, Rejected2> rejectFilter,
-			  final ProgressFilter<Progress, Progress2> progressFilter);
-
-  public <Resolved2, Rejected2, Progress2> Promise<Resolved2, Rejected2, Progress2>
-          pipe(final ResolvePipe<Resolved, Resolved2, Rejected2, Progress2> resolvedPipe);
-
-  public  <Resolved2> Promise<Resolved2, Rejected, Progress>
-          pipe(final ResolveFilter<Resolved, Resolved2> resolveFilter);
+    /**
+     * Called when there is a progress update on the operation.
+     *
+     * @param onProgress
+     * @return
+     */
+    public Promise<Success, Failure, Progress> onProgress(final Callback<Progress> onProgress);
 
 
+    /**
+     * Registers callbacks for success, failure and progress. The Promise is left unchanged and can be
+     * chained.
+     *
+     * @param onSuccess
+     * @param onFailure
+     * @param onProgress
+     * @return
+     */
+    public Promise<Success, Failure, Progress> andThen(Callback<Success> onSuccess, Callback<Failure> onFailure,
+                                                       Callback<Progress> onProgress);
 
+    /* -------------------------------------------------------------------------------------- */
+    // Transformations
+    /* -------------------------------------------------------------------------------------- */
+
+    /**
+     * Creates a new Promise by applying a {@link MapTransformation} to
+     * the success result of this Promise.
+     *
+     * @param transform  transforms Success into Success2
+     * @param <Success2>
+     * @return
+     */
+    public <Success2> Promise<Success2, Failure, Progress>
+    map(final MapTransformation<Success, Success2> transform);
+
+    /**
+     * Creates a new Promise by applying {@link MapTransformation}s to the success and
+     * failure results of this Promise.
+     *
+     * @param transformSuccess transformation between success types or null if you want it unchanged
+     * @param transformFailure transformation between failure types or null if you want it unchanged
+     * @param <Success2>
+     * @param <Failure2>
+     * @return
+     */
+    public <Success2, Failure2> Promise<Success2, Failure2, Progress>
+    map(final MapTransformation<Success, Success2> transformSuccess,
+        final MapTransformation<Failure, Failure2> transformFailure);
+
+    /**
+     * Creates a new Promise by applying {@link MapTransformation}s to the success, failure
+     * and progress results of this Promise.
+     *
+     * @param transformSuccess  transformation between success types or null if you want it unchanged
+     * @param transformFailure  transformation between failure types or null if you want it unchanged
+     * @param transformProgress transformation between progress types or null if you want it unchanged
+     * @param <Success2>
+     * @param <Failure2>
+     * @param <Progress2>
+     * @return
+     */
+    public <Success2, Failure2, Progress2> Promise<Success2, Failure2, Progress2>
+    map(final MapTransformation<Success, Success2> transformSuccess,
+        final MapTransformation<Failure, Failure2> transformFailure,
+        final MapTransformation<Progress, Progress2> transformProgress);
+
+    /**
+     * Creates a new Promise by applying a {@link org.codeandmagic.deferredobject.FlatMapTransformation}.
+     * By contrast to a {@link org.codeandmagic.deferredobject.MapTransformation}, this can transform a successful
+     * Promise into a failed one.
+     * <p/>
+     * Example: a successful HTTP call can be transformed into a failed one if the JSON de-serialisation (expressed
+     * as a {@link org.codeandmagic.deferredobject.FlatMapTransformation}) throws an error.
+     *
+     * @param transform
+     * @param <Success2>
+     * @return
+     */
+    public <Success2> Promise<Success2, Failure, Progress>
+    flatMap(final FlatMapTransformation<Success, Success2, Failure> transform);
 }
-
