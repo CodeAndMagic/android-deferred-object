@@ -81,7 +81,8 @@ public interface Promise<Success, Failure, Progress> {
      * @param onProgress
      * @return
      */
-    public Promise<Success, Failure, Progress> andThen(Callback<Success> onSuccess, Callback<Failure> onFailure,
+    public Promise<Success, Failure, Progress> andThen(Callback<Success> onSuccess,
+                                                       Callback<Failure> onFailure,
                                                        Callback<Progress> onProgress);
 
     /* -------------------------------------------------------------------------------------- */
