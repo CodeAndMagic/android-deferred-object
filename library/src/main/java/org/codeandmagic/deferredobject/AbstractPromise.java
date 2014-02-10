@@ -2,11 +2,18 @@
  * Copyright (c) 2014 Cristian Vrabie, Evelina Vrabie.
  *
  * This file is part of android-deferred-object.
- * android-deferred-object is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either version 3 of the License,or (at your option) any later version.
+ * android-deferred-object is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by the
+ * Free Software Foundation, either version 3 of the License,or (at your option)
+ * any later version.
  *
- * android-deferred-object is distributed in the hope that it will be useful, butWITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
+ * android-deferred-object is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License along with android-deferred-object.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License along with android-deferred-object.
+ * If not, see <http://www.gnu.org/licenses/>.
  */
 
 package org.codeandmagic.deferredobject;
@@ -40,8 +47,8 @@ public class AbstractPromise<Success, Failure, Progress> implements Promise<Succ
 
     protected final void triggerSuccess() {
         triggerCompleted();
-        for (final Callback<Success> r : successCallbacks) {
-            r.onCallback(result);
+        for (final Callback<Success> s : successCallbacks) {
+            s.onCallback(result);
         }
     }
 
@@ -53,8 +60,8 @@ public class AbstractPromise<Success, Failure, Progress> implements Promise<Succ
 
     protected final void triggerFailure() {
         triggerCompleted();
-        for (final Callback<Failure> r : failureCallbacks) {
-            r.onCallback(failure);
+        for (final Callback<Failure> f : failureCallbacks) {
+            f.onCallback(failure);
         }
     }
 
@@ -114,8 +121,8 @@ public class AbstractPromise<Success, Failure, Progress> implements Promise<Succ
         if (onFailure != null) failureCallbacks.add(onFailure);
         if (onProgress != null) progressCallbacks.add(onProgress);
 
-        if (onSuccess != null) if (isSuccess()) onSuccess.onCallback(result);
-        if (onFailure != null) if (isFailure()) onFailure.onCallback(failure);
+        if (onSuccess != null && isSuccess()) onSuccess.onCallback(result);
+        if (onFailure != null && isFailure()) onFailure.onCallback(failure);
 
         return this;
     }
@@ -138,13 +145,14 @@ public class AbstractPromise<Success, Failure, Progress> implements Promise<Succ
     @Override
     public Promise<Success, Failure, Progress> onComplete(Callback<Either<Failure, Success>> onComplete) {
         if (onComplete != null) completeCallbacks.add(onComplete);
-        if (onComplete != null) if (isSuccess() || isFailure())
+        if (onComplete != null && (isSuccess() || isFailure()))
             onComplete.onCallback(isSuccess() ? new Right<Failure, Success>(result) : new Left<Failure, Success>(failure));
 
         return this;
     }
 
 
+    @SuppressWarnings("unchecked")
     @Override
     public <Success2, Failure2, Progress2> Promise<Success2, Failure2, Progress2>
     map(final MapTransformation<Success, Success2> transformSuccess,
