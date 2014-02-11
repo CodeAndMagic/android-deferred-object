@@ -22,6 +22,7 @@ import junit.framework.TestCase;
 import org.codeandmagic.deferredobject.Callback;
 import org.codeandmagic.deferredobject.Either;
 import org.codeandmagic.deferredobject.Right;
+import org.codeandmagic.deferredobject.*;
 
 import static org.mockito.Mockito.*;
 
@@ -31,7 +32,7 @@ import static org.mockito.Mockito.*;
 public class CallbackTests extends TestCase {
 
     public void testCallbacks() {
-        InspectableDeferredObject<Integer, Void, Void> promise = new InspectableDeferredObject<Integer, Void, Void>();
+        DeferredObject<Integer, Void, Void> promise = new DeferredObject<Integer, Void, Void>();
         Callback<Integer> onSuccess = mock(Callback.class);
         Callback<Either<Void, Integer>> onComplete = mock(Callback.class);
 

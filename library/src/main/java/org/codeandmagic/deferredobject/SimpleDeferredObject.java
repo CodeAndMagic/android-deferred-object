@@ -16,21 +16,25 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.codeandmagic.deferredobject.tests;
-
-import org.codeandmagic.deferredobject.DeferredObject;
+package org.codeandmagic.deferredobject;
 
 /**
- * Created by cristian on 10/02/2014.
+ * Created by evelina on 10/02/2014.
  */
-public class InspectableDeferredObject<Success, Failure, Progress> extends DeferredObject<Success, Failure, Progress> {
+public class SimpleDeferredObject<Success> extends AbstractSimplePromise<Success> {
 
-
-    public Success getSuccess() {
-        return result;
+    @Override
+    public void success(Success resolved) {
+        super.success(resolved);
     }
 
-    public Failure getFailure() {
-        return failure;
+    @Override
+    public void failure(Throwable throwable) {
+        super.failure(throwable);
+    }
+
+    @Override
+    public void progress(Float progress) {
+        super.progress(progress);
     }
 }

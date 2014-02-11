@@ -20,12 +20,30 @@ package org.codeandmagic.deferredobject;
 
 /**
  * Simplified version of {@link org.codeandmagic.deferredobject.Promise} which returns a {@link java.lang.Throwable}
- * in case of failure and has no support for progress.
- *
+ * in case of failure and exposes progress as a Float.
+ * <p/>
  * Created by cristian on 10/02/2014.
  */
-public interface SimplePromise<Success> extends Promise<Success, Throwable, Void> {
+public interface SimplePromise<Success> extends Promise<Success, Throwable, Float> {
 
-    public <Success2> SimplePromise<Success2> map(MapTransformation<Success, Success2> transform);
+    @Override
+    public SimplePromise<Success> onSuccess(Callback<Success> onSuccess);
+
+    @Override
+    public SimplePromise<Success> onFailure(Callback<Throwable> onFailure);
+
+    @Override
+    public SimplePromise<Success> onProgress(Callback<Float> onProgress);
+
+    @Override
+    public SimplePromise<Success> onComplete(Callback<Either<Throwable, Success>> onComplete);
+
+    @Override
+    public <Success2> SimplePromise<Success2> map(final MapTransformation<Success, Success2> transform);
+
+    @Override
+    public SimplePromise<Success> andThen(Callback<Success> onSuccess,
+                                          Callback<Throwable> onFailure,
+                                          Callback<Float> onProgress);
 
 }

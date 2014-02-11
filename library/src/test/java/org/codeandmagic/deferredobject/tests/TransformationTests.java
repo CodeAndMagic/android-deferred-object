@@ -47,11 +47,9 @@ public class TransformationTests extends TestCase {
     };
 
     public void testMapSuccess() {
-        InspectableDeferredObject<Integer, Void, Void> promise = new InspectableDeferredObject<Integer, Void, Void>();
-        Promise<String, Void, Void> promise2 = promise.map(intToString);
-
         Callback<String> callback = mock(Callback.class);
-        promise2.onSuccess(callback);
+        DeferredObject<Integer, Void, Void> promise = new DeferredObject<Integer, Void, Void>();
+        Promise<String, Void, Void> promise2 = promise.map(intToString).onSuccess(callback);
 
         assertFalse(promise2.isSuccess());
 
@@ -62,7 +60,7 @@ public class TransformationTests extends TestCase {
     }
 
     public void testMapFailure() {
-        InspectableDeferredObject<Integer, Throwable, Void> promise = new InspectableDeferredObject<Integer, Throwable, Void>();
+        DeferredObject<Integer, Throwable, Void> promise = new DeferredObject<Integer, Throwable, Void>();
         Promise<String, Throwable, Void> promise2 = promise.map(intToString);
 
         Callback<String> onSuccess = mock(Callback.class);
@@ -82,7 +80,7 @@ public class TransformationTests extends TestCase {
     }
 
     public void testFlatMap() {
-        InspectableDeferredObject<String, Throwable, Void> promise = new InspectableDeferredObject<String, Throwable, Void>();
+        DeferredObject<String, Throwable, Void> promise = new DeferredObject<String, Throwable, Void>();
         Promise<Integer, Throwable, Void> promise2 = promise.flatMap(stringToInt);
 
         Callback<Integer> onSuccess = mock(Callback.class);

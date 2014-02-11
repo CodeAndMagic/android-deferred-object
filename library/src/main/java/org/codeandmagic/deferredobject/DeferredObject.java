@@ -19,9 +19,12 @@
 package org.codeandmagic.deferredobject;
 
 /**
+ * A DeferredObject is a {@link org.codeandmagic.deferredobject.Promise} that exposes methods which allow setting
+ * its completion status.
+ * <p/>
  * User: cvrabie1 Date: 09/07/2012
  */
-public abstract class DeferredObject<Success, Failure, Progress> extends AbstractPromise<Success, Failure, Progress> {
+public class DeferredObject<Success, Failure, Progress> extends AbstractPromise<Success, Failure, Progress> {
 
     @Override
     public final void progress(Progress progress) {

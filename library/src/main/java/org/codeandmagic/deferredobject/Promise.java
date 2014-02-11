@@ -19,6 +19,17 @@
 package org.codeandmagic.deferredobject;
 
 /**
+ * A Promise is an immutable contract for an operation that might complete in the future.
+ * The operation can have a successful outcome or it might fail with a specific result.
+ * It may also send notifications about the progress of the operation.
+ *
+ * A direct result cannot be extracted from a Promise,
+ * instead you should register {@link org.codeandmagic.deferredobject.Callback}s for success, failure or progress.
+ *
+ * {@link org.codeandmagic.deferredobject.MapTransformation}s and
+ * {@link org.codeandmagic.deferredobject.FlatMapTransformation}s can be applied to a Promise to obtain a new one
+ * that filters or changes the result or failure.
+ *
  * User: cvrabie1 Date: 09/07/2012
  */
 public interface Promise<Success, Failure, Progress> {
