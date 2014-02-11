@@ -26,6 +26,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class AbstractPromise<Success, Failure, Progress> implements Promise<Success, Failure, Progress> {
 
+    static <T> List<Callback<T>> arr() {
+        return new CopyOnWriteArrayList<Callback<T>>();
+    }
+
     /*
     * The state of this Deferred Object
     */
@@ -39,11 +43,31 @@ public class AbstractPromise<Success, Failure, Progress> implements Promise<Succ
      */
     protected Failure failure;
 
-    protected final List<Callback<Success>> successCallbacks = new CopyOnWriteArrayList<Callback<Success>>();
-    protected final List<Callback<Failure>> failureCallbacks = new CopyOnWriteArrayList<Callback<Failure>>();
-    protected final List<Callback<Progress>> progressCallbacks = new CopyOnWriteArrayList<Callback<Progress>>();
-    protected final List<Callback<Either<Failure, Success>>> completeCallbacks =
-            new CopyOnWriteArrayList<Callback<Either<Failure, Success>>>();
+    protected final List<Callback<Success>> successCallbacks;
+    protected final List<Callback<Failure>> failureCallbacks;
+    protected final List<Callback<Progress>> progressCallbacks;
+    protected final List<Callback<Either<Failure, Success>>> completeCallbacks;
+
+    private AbstractPromise(List<Callback<Success>> successCallbacks,
+                            List<Callback<Failure>> failureCallbacks,
+                            List<Callback<Progress>> progressCallbacks,
+                            List<Callback<Either<Failure, Success>>> completeCallbacks) {
+        this.successCallbacks = successCallbacks;
+        this.failureCallbacks = failureCallbacks;
+        this.progressCallbacks = progressCallbacks;
+        this.completeCallbacks = completeCallbacks;
+    }
+
+    public AbstractPromise() {
+        this(AbstractPromise.<Success>arr(),
+             AbstractPromise.<Failure>arr(),
+             AbstractPromise.<Progress>arr(),
+             AbstractPromise.<Either<Failure, Success>>arr());
+    }
+
+    protected <S, F, P> AbstractPromise<S, F, P> newPromise() {
+        return new AbstractPromise<S, F, P>();
+    }
 
     protected final void triggerSuccess() {
         triggerCompleted();
@@ -82,10 +106,6 @@ public class AbstractPromise<Success, Failure, Progress> implements Promise<Succ
         for (final Callback<Progress> p : progressCallbacks) {
             p.onCallback(progress);
         }
-    }
-
-    protected <S, F, P> AbstractPromise<S, F, P> newPromise() {
-        return new AbstractPromise<S, F, P>();
     }
 
     protected final void complete(Either<Failure, Success> either) {
