@@ -19,6 +19,12 @@
 package org.codeandmagic.deferredobject;
 
 /**
+ * Transforms T1 into T2 in situations when it is guaranteed this operation cannot fail.
+ * For example, transforming an int into a String.
+ *
+ * For operations that can fail, for example transforming a String into an int (parse), must use a
+ * {@link EitherMapTransformation}.
+ *
  * Created by cristian on 10/02/2014.
  */
 public interface MapTransformation<T1, T2> {

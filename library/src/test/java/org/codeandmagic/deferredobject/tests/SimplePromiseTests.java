@@ -1,14 +1,19 @@
 package org.codeandmagic.deferredobject.tests;
 
-import junit.framework.TestCase;
 import org.codeandmagic.deferredobject.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 /**
  * Created by evelina on 11/02/2014.
  */
-public class SimplePromiseTests extends TestCase {
+@RunWith(JUnit4.class)
+public class SimplePromiseTests {
 
     private MapTransformation<Integer, String> intToString = new MapTransformation<Integer, String>() {
         @Override
@@ -24,6 +29,7 @@ public class SimplePromiseTests extends TestCase {
         }
     };
 
+    @Test
     public void testMapSuccess() {
         Callback<String> callback = mock(Callback.class);
         SimpleDeferredObject<Integer> promise = new SimpleDeferredObject<Integer>();
@@ -37,6 +43,7 @@ public class SimplePromiseTests extends TestCase {
         verify(callback, only()).onCallback("20!");
     }
 
+    @Test
     public void testPromiseGeneralisation() throws Exception {
         Callback<String> onSuccess = mock(Callback.class);
         Callback<String> onFailure = mock(Callback.class);

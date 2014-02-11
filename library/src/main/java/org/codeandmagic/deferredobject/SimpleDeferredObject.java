@@ -23,6 +23,18 @@ package org.codeandmagic.deferredobject;
  */
 public class SimpleDeferredObject<Success> extends AbstractSimplePromise<Success> {
 
+    public static <S> SimpleDeferredObject<S> successful(S value) {
+        final SimpleDeferredObject<S> deferredObject = new SimpleDeferredObject<S>();
+        deferredObject.success(value);
+        return deferredObject;
+    }
+
+    public static <S> SimpleDeferredObject<S> failed(Throwable value) {
+        final SimpleDeferredObject<S> deferredObject = new SimpleDeferredObject<S>();
+        deferredObject.failure(value);
+        return deferredObject;
+    }
+
     @Override
     public void success(Success resolved) {
         super.success(resolved);

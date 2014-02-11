@@ -23,14 +23,19 @@ import org.codeandmagic.deferredobject.Callback;
 import org.codeandmagic.deferredobject.Either;
 import org.codeandmagic.deferredobject.Right;
 import org.codeandmagic.deferredobject.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 import static org.mockito.Mockito.*;
 
 /**
  * Created by cristian on 10/02/2014.
  */
-public class CallbackTests extends TestCase {
+@RunWith(JUnit4.class)
+public class CallbackTests {
 
+    @Test
     public void testCallbacks() {
         DeferredObject<Integer, Void, Void> promise = new DeferredObject<Integer, Void, Void>();
         Callback<Integer> onSuccess = mock(Callback.class);

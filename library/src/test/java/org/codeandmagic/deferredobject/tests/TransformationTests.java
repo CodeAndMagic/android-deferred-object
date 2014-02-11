@@ -20,13 +20,18 @@ package org.codeandmagic.deferredobject.tests;
 
 import junit.framework.TestCase;
 import org.codeandmagic.deferredobject.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 import static org.mockito.Mockito.*;
+import static org.junit.Assert.*;
 
 /**
  * Created by cristian on 10/02/2014.
  */
-public class TransformationTests extends TestCase {
+@RunWith(JUnit4.class)
+public class TransformationTests {
 
     private MapTransformation<Integer, String> intToString = new MapTransformation<Integer, String>() {
         @Override
@@ -35,7 +40,7 @@ public class TransformationTests extends TestCase {
         }
     };
 
-    private FlatMapTransformation<String, Integer, Throwable> stringToInt = new FlatMapTransformation<String, Integer, Throwable>() {
+    private EitherMapTransformation<String, Integer, Throwable> stringToInt = new EitherMapTransformation<String, Integer, Throwable>() {
         @Override
         public Either<Throwable, Integer> transform(String value) {
             try {
@@ -46,19 +51,21 @@ public class TransformationTests extends TestCase {
         }
     };
 
+    @Test
     public void testMapSuccess() {
-        Callback<String> callback = mock(Callback.class);
+        Callback<String> onSuccess = mock(Callback.class);
         DeferredObject<Integer, Void, Void> promise = new DeferredObject<Integer, Void, Void>();
-        Promise<String, Void, Void> promise2 = promise.map(intToString).onSuccess(callback);
+        Promise<String, Void, Void> promise2 = promise.map(intToString).onSuccess(onSuccess);
 
         assertFalse(promise2.isSuccess());
 
         promise.success(1);
 
         assertTrue(promise2.isSuccess());
-        verify(callback, only()).onCallback("2!");
+        verify(onSuccess, only()).onCallback("2!");
     }
 
+    @Test
     public void testMapFailure() {
         DeferredObject<Integer, Throwable, Void> promise = new DeferredObject<Integer, Throwable, Void>();
         Promise<String, Throwable, Void> promise2 = promise.map(intToString);
@@ -79,9 +86,10 @@ public class TransformationTests extends TestCase {
         assertTrue(promise2.isFailure());
     }
 
+    @Test
     public void testFlatMap() {
         DeferredObject<String, Throwable, Void> promise = new DeferredObject<String, Throwable, Void>();
-        Promise<Integer, Throwable, Void> promise2 = promise.flatMap(stringToInt);
+        Promise<Integer, Throwable, Void> promise2 = promise.map(stringToInt);
 
         Callback<Integer> onSuccess = mock(Callback.class);
         Callback<Throwable> onFailure = mock(Callback.class);

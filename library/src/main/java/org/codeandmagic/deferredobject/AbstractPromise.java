@@ -33,7 +33,7 @@ public class AbstractPromise<Success, Failure, Progress> implements Promise<Succ
     /*
     * The state of this Deferred Object
     */
-    protected Promise.State state = State.IN_PROGRESS;
+    protected Promise.State state = State.PENDING;
     /**
      * The value or this deferred object if it has been result or null otherwise
      */
@@ -108,7 +108,7 @@ public class AbstractPromise<Success, Failure, Progress> implements Promise<Succ
     }
 
     protected void progress(final Progress progress) {
-        if (Promise.State.IN_PROGRESS.compareTo(state) < 0) return;
+        if (Promise.State.PENDING.compareTo(state) < 0) return;
         for (final Callback<Progress> p : progressCallbacks) {
             p.onCallback(progress);
         }
@@ -120,8 +120,8 @@ public class AbstractPromise<Success, Failure, Progress> implements Promise<Succ
     }
 
     @Override
-    public boolean isInProgress() {
-        return Promise.State.IN_PROGRESS == state;
+    public boolean isPending() {
+        return Promise.State.PENDING == state;
     }
 
     @Override
@@ -230,7 +230,7 @@ public class AbstractPromise<Success, Failure, Progress> implements Promise<Succ
 
     @Override
     public <Success2> Promise<Success2, Failure, Progress>
-    flatMap(final FlatMapTransformation<Success, Success2, Failure> transform) {
+    map(final EitherMapTransformation<Success, Success2, Failure> transform) {
 
         final AbstractPromise<Success2, Failure, Progress> promise = newPromise();
 
@@ -248,6 +248,110 @@ public class AbstractPromise<Success, Failure, Progress> implements Promise<Succ
             @Override
             public void onCallback(Progress result) {
                 promise.progress(result);
+            }
+        });
+
+        return promise;
+    }
+
+    @Override
+    public Promise<Success, Failure, Progress> recover(final MapTransformation<Failure, Success> transform) {
+
+        final AbstractPromise<Success, Failure, Progress> promise = newPromise();
+
+        this.onSuccess(new Callback<Success>() {
+            @Override
+            public void onCallback(Success result) {
+                promise.success(result);
+            }
+        }).onFailure(new Callback<Failure>() {
+            @Override
+            public void onCallback(Failure result) {
+                promise.success(transform.transform(result));
+            }
+        }).onProgress(new Callback<Progress>() {
+            @Override
+            public void onCallback(Progress result) {
+                promise.progress(result);
+            }
+        });
+
+        return promise;
+    }
+
+    @Override
+    public Promise<Success, Failure, Progress> recover(final EitherMapTransformation<Failure, Success, Failure> transform) {
+
+        final AbstractPromise<Success, Failure, Progress> promise = newPromise();
+
+        this.onSuccess(new Callback<Success>() {
+            @Override
+            public void onCallback(Success result) {
+                promise.success(result);
+            }
+        }).onFailure(new Callback<Failure>() {
+            @Override
+            public void onCallback(Failure result) {
+                promise.complete(transform.transform(result));
+            }
+        }).onProgress(new Callback<Progress>() {
+            @Override
+            public void onCallback(Progress result) {
+                promise.progress(result);
+            }
+        });
+
+        return promise;
+    }
+
+    @Override
+    public <Success2> Promise<Success2, Failure, Void> pipe(final PipeTransformation<Success, Success2, Failure> transform) {
+
+        final AbstractPromise<Success2, Failure, Void> promise = newPromise();
+
+        this.onSuccess(new Callback<Success>() {
+            @Override
+            public void onCallback(Success result) {
+                // When the first operation succeeds, initiate the second operation
+                transform.transform(result).onComplete(new Callback<Either<Failure, Success2>>() {
+                    @Override
+                    public void onCallback(Either<Failure, Success2> result2) {
+                        // When the second operation completes, complete the new Promise
+                        promise.complete(result2);
+                    }
+                });
+            }
+        }).onFailure(new Callback<Failure>() {
+            @Override
+            public void onCallback(Failure result) {
+                promise.failure(result);
+            }
+        });
+
+        return promise;
+    }
+
+    @Override
+    public Promise<Success, Failure, Void> recoverWith(final PipeTransformation<Failure, Success, Failure> transform) {
+
+        final AbstractPromise<Success, Failure, Void> promise = newPromise();
+
+        this.onSuccess(new Callback<Success>() {
+            @Override
+            public void onCallback(Success result) {
+                promise.success(result);
+            }
+        }).onFailure(new Callback<Failure>() {
+            @Override
+            public void onCallback(Failure result) {
+                // When the first operation fails, initiate a second operation
+                transform.transform(result).onComplete(new Callback<Either<Failure, Success>>() {
+                    @Override
+                    public void onCallback(Either<Failure, Success> result2) {
+                        // When the second operation completes, complete the new Promise
+                        promise.complete(result2);
+                    }
+                });
             }
         });
 

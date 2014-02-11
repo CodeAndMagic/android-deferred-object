@@ -56,9 +56,69 @@ public class AbstractSimplePromise<Success> extends AbstractPromise<Success, Thr
     }
 
     @Override
+    public SimplePromise<Success> recover(MapTransformation<Throwable, Success> transform) {
+        return (SimplePromise<Success>) super.recover(transform);
+    }
+
+    @Override
+    public SimplePromise<Success> recover(EitherMapTransformation<Throwable, Success, Throwable> transform) {
+        return (SimplePromise<Success>) super.recover(transform);
+    }
+
+    @Override
     public SimplePromise<Success> andThen(Callback<Success> onSuccess,
                                           Callback<Throwable> onFailure,
                                           Callback<Float> onProgress) {
         return (SimplePromise<Success>) super.andThen(onSuccess, onFailure, onProgress);
+    }
+
+    @Override
+    public <Success2> SimplePromise<Success2> pipe(final SimplePipeTransformation<Success, Success2> transform) {
+
+        final AbstractSimplePromise<Success2> promise = new AbstractSimplePromise<Success2>();
+
+        this.onSuccess(new Callback<Success>() {
+            @Override
+            public void onCallback(Success result) {
+                transform.transform(result).onComplete(new Callback<Either<Throwable, Success2>>() {
+                    @Override
+                    public void onCallback(Either<Throwable, Success2> result2) {
+                        promise.complete(result2);
+                    }
+                });
+            }
+        }).onFailure(new Callback<Throwable>() {
+            @Override
+            public void onCallback(Throwable result) {
+                promise.failure(result);
+            }
+        });
+
+        return promise;
+    }
+
+    @Override
+    public SimplePromise<Success> recoverWith(final SimplePipeTransformation<Throwable, Success> transform) {
+
+        final AbstractSimplePromise<Success> promise = new AbstractSimplePromise<Success>();
+
+        this.onSuccess(new Callback<Success>() {
+            @Override
+            public void onCallback(Success result) {
+                promise.success(result);
+            }
+        }).onFailure(new Callback<Throwable>() {
+            @Override
+            public void onCallback(Throwable result) {
+                transform.transform(result).onComplete(new Callback<Either<Throwable, Success>>() {
+                    @Override
+                    public void onCallback(Either<Throwable, Success> result2) {
+                        promise.complete(result2);
+                    }
+                });
+            }
+        });
+
+        return promise;
     }
 }

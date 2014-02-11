@@ -19,9 +19,16 @@
 package org.codeandmagic.deferredobject;
 
 /**
+ * Transforms T1 into T2 if possible, or into F if the transformation fails.
+ * For example, parsing a String can result into an int or a {@link java.lang.NumberFormatException} if the String doesn't
+ * represent a number.
+ *
+ * For operations which are guaranteed to succeed, use a {@link org.codeandmagic.deferredobject.MapTransformation} instead.
+ * For example, transforming an int into a String.
+ *
  * Created by cristian on 10/02/2014.
  */
-public interface FlatMapTransformation<T1, T2, F> {
+public interface EitherMapTransformation<T1, T2, F> {
 
     Either<F, T2> transform(T1 value);
 }

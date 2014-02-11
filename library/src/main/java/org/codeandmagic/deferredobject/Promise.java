@@ -27,7 +27,7 @@ package org.codeandmagic.deferredobject;
  * instead you should register {@link org.codeandmagic.deferredobject.Callback}s for success, failure or progress.
  *
  * {@link org.codeandmagic.deferredobject.MapTransformation}s and
- * {@link org.codeandmagic.deferredobject.FlatMapTransformation}s can be applied to a Promise to obtain a new one
+ * {@link EitherMapTransformation}s can be applied to a Promise to obtain a new one
  * that filters or changes the result or failure.
  *
  * User: cvrabie1 Date: 09/07/2012
@@ -35,12 +35,12 @@ package org.codeandmagic.deferredobject;
 public interface Promise<Success, Failure, Progress> {
 
     public enum State {
-        IN_PROGRESS, FAILED, SUCCESS
+        PENDING, FAILED, SUCCESS
     }
 
     public State state();
 
-    public boolean isInProgress();
+    public boolean isPending();
 
     public boolean isFailure();
 
@@ -143,17 +143,64 @@ public interface Promise<Success, Failure, Progress> {
         final MapTransformation<Progress, Progress2> transformProgress);
 
     /**
-     * Creates a new Promise by applying a {@link org.codeandmagic.deferredobject.FlatMapTransformation}.
+     * Creates a new Promise by applying a {@link EitherMapTransformation}.
      * By contrast to a {@link org.codeandmagic.deferredobject.MapTransformation}, this can transform a successful
      * Promise into a failed one.
      * <p/>
      * Example: a successful HTTP call can be transformed into a failed one if the JSON de-serialisation (expressed
-     * as a {@link org.codeandmagic.deferredobject.FlatMapTransformation}) throws an error.
+     * as a {@link EitherMapTransformation}) throws an error.
      *
      * @param transform
      * @param <Success2>
      * @return
      */
     public <Success2> Promise<Success2, Failure, Progress>
-    flatMap(final FlatMapTransformation<Success, Success2, Failure> transform);
+    map(final EitherMapTransformation<Success, Success2, Failure> transform);
+
+    /**
+     * Creates a new Promise by applying a {@link org.codeandmagic.deferredobject.MapTransformation} from failure to success.
+     * If the Promise is successful, the result will not be affected by the transformation.
+     *
+     * For example, when the request to download an image from the Internet fails, provide a default one.
+     *
+     * @param transform
+     * @return
+     */
+    public Promise<Success, Failure, Progress> recover(final MapTransformation<Failure, Success> transform);
+
+    /**
+     * Creates a new Promise and tries to transform a failure into a success. If the transformation fails, the result
+     * will be also a failure.
+     *
+     * For example, when the request to download an image from the Internet fails, try to provide a local cached copy,
+     * but if there is no image in the cache, the Promise will fail.
+     *
+     * @param transform
+     * @return
+     */
+    public Promise<Success, Failure, Progress> recover(final EitherMapTransformation<Failure, Success, Failure> transform);
+
+    /**
+     * Pipes the success of a Promise into another asynchronous operation and returns a new Promise for that operation.
+     *
+     * For example, make a request to a server, then when you have a successful result, make another request.
+     * The result of the pipe is a new Promise for the second operation.
+     *
+     * @param transform
+     * @param <Success2>
+     * @return
+     */
+    public <Success2> Promise<Success2, Failure, Void> pipe(final PipeTransformation<Success, Success2, Failure> transform);
+
+
+    /**
+     * Pipes the failure of a Promise into another asynchronous operation and returns a new Promise for that operation.
+     *
+     * For example, make a request to a server and if that fails, make another request to a different server.
+     *
+     * @param transform
+     * @return
+     */
+    public Promise<Success, Failure, Void> recoverWith(final PipeTransformation<Failure, Success, Failure> transform);
+
 }

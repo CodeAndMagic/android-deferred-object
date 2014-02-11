@@ -46,4 +46,14 @@ public interface SimplePromise<Success> extends Promise<Success, Throwable, Floa
                                           Callback<Throwable> onFailure,
                                           Callback<Float> onProgress);
 
+    @Override
+    public SimplePromise<Success> recover(final EitherMapTransformation<Throwable, Success, Throwable> transform);
+
+    @Override
+    public SimplePromise<Success> recover(final MapTransformation<Throwable, Success> transform);
+
+
+    public <Success2> SimplePromise<Success2> pipe(final SimplePipeTransformation<Success, Success2> transform);
+
+    public SimplePromise<Success> recoverWith(final SimplePipeTransformation<Throwable, Success> transform);
 }

@@ -26,6 +26,18 @@ package org.codeandmagic.deferredobject;
  */
 public class DeferredObject<Success, Failure, Progress> extends AbstractPromise<Success, Failure, Progress> {
 
+    public static <S, F, P> DeferredObject<S, F, P> successful(S value) {
+        final DeferredObject<S, F, P> deferredObject = new DeferredObject<S, F, P>();
+        deferredObject.success(value);
+        return deferredObject;
+    }
+
+    public static <S, F, P> DeferredObject<S, F, P> failed(F value) {
+        final DeferredObject<S, F, P> deferredObject = new DeferredObject<S, F, P>();
+        deferredObject.failure(value);
+        return deferredObject;
+    }
+
     @Override
     public final void progress(Progress progress) {
         super.progress(progress);
