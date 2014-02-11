@@ -33,7 +33,7 @@ public class AbstractPromise<Success, Failure, Progress> implements Promise<Succ
     /*
     * The state of this Deferred Object
     */
-    protected Promise.State state = State.PENDING;
+    protected Promise.State state = State.IN_PROGRESS;
     /**
      * The value or this deferred object if it has been result or null otherwise
      */
@@ -60,13 +60,20 @@ public class AbstractPromise<Success, Failure, Progress> implements Promise<Succ
 
     public AbstractPromise() {
         this(AbstractPromise.<Success>arr(),
-             AbstractPromise.<Failure>arr(),
-             AbstractPromise.<Progress>arr(),
-             AbstractPromise.<Either<Failure, Success>>arr());
+                AbstractPromise.<Failure>arr(),
+                AbstractPromise.<Progress>arr(),
+                AbstractPromise.<Either<Failure, Success>>arr());
     }
 
     protected <S, F, P> AbstractPromise<S, F, P> newPromise() {
         return new AbstractPromise<S, F, P>();
+    }
+
+
+    protected void success(final Success resolved) {
+        this.result = resolved;
+        this.state = State.SUCCESS;
+        triggerSuccess();
     }
 
     protected final void triggerSuccess() {
@@ -76,10 +83,10 @@ public class AbstractPromise<Success, Failure, Progress> implements Promise<Succ
         }
     }
 
-    protected void success(final Success resolved) {
-        this.result = resolved;
-        this.state = State.SUCCESS;
-        triggerSuccess();
+    protected void failure(final Failure failure) {
+        this.failure = failure;
+        this.state = State.FAILED;
+        triggerFailure();
     }
 
     protected final void triggerFailure() {
@@ -89,10 +96,9 @@ public class AbstractPromise<Success, Failure, Progress> implements Promise<Succ
         }
     }
 
-    protected void failure(final Failure failure) {
-        this.failure = failure;
-        this.state = State.FAILED;
-        triggerFailure();
+    protected final void complete(Either<Failure, Success> either) {
+        if (either.isLeft()) failure(either.getLeft());
+        else success(either.getRight());
     }
 
     protected final void triggerCompleted() {
@@ -102,15 +108,10 @@ public class AbstractPromise<Success, Failure, Progress> implements Promise<Succ
     }
 
     protected void progress(final Progress progress) {
-        if (Promise.State.PENDING.compareTo(state) < 0) return;
+        if (Promise.State.IN_PROGRESS.compareTo(state) < 0) return;
         for (final Callback<Progress> p : progressCallbacks) {
             p.onCallback(progress);
         }
-    }
-
-    protected final void complete(Either<Failure, Success> either) {
-        if (either.isLeft()) failure(either.getLeft());
-        else success(either.getRight());
     }
 
     @Override
@@ -119,8 +120,8 @@ public class AbstractPromise<Success, Failure, Progress> implements Promise<Succ
     }
 
     @Override
-    public boolean isPending() {
-        return Promise.State.PENDING == state;
+    public boolean isInProgress() {
+        return Promise.State.IN_PROGRESS == state;
     }
 
     @Override
@@ -134,7 +135,8 @@ public class AbstractPromise<Success, Failure, Progress> implements Promise<Succ
     }
 
     @Override
-    public Promise<Success, Failure, Progress> andThen(Callback<Success> onSuccess, Callback<Failure> onFailure,
+    public Promise<Success, Failure, Progress> andThen(Callback<Success> onSuccess,
+                                                       Callback<Failure> onFailure,
                                                        Callback<Progress> onProgress) {
 
         if (onSuccess != null) successCallbacks.add(onSuccess);

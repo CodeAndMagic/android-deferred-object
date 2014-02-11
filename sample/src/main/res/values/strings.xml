@@ -6,4 +6,7 @@
     <string name="no_progress">-</string>
     <string name="all_done">All Done!</string>
     <string name="failure">Failure!</string>
+
+	<string name="api_demo_json">http://deferredobject.apiary.io/demo/json</string>
+	<string name="api_demo_images">http://deferredobject.apiary.io/demo/images</string>
 </resources>

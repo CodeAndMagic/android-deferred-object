@@ -23,7 +23,7 @@ package org.codeandmagic.deferredobject;
  * The operation can have a successful outcome or it might fail with a specific result.
  * It may also send notifications about the progress of the operation.
  *
- * A direct result cannot be extracted from a Promise,
+ * A direct result <b>cannot</b> be extracted from a Promise,
  * instead you should register {@link org.codeandmagic.deferredobject.Callback}s for success, failure or progress.
  *
  * {@link org.codeandmagic.deferredobject.MapTransformation}s and
@@ -35,12 +35,12 @@ package org.codeandmagic.deferredobject;
 public interface Promise<Success, Failure, Progress> {
 
     public enum State {
-        PENDING, FAILED, SUCCESS
+        IN_PROGRESS, FAILED, SUCCESS
     }
 
     public State state();
 
-    public boolean isPending();
+    public boolean isInProgress();
 
     public boolean isFailure();
 

@@ -33,7 +33,7 @@ configurations {
 dependencies {
     compile 'com.android.support:support-v4:19.0.1'
     compile 'com.android.support:appcompat-v7:19.0.1'
-    compile fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
+    //compile fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
 
     unitTestCompile files("$project.buildDir/classes/release")
     unitTestCompile 'junit:junit:4.11'
@@ -56,7 +56,7 @@ android {
     }
 }
 
-task unitTest(type:Test, dependsOn: assemble) {
+task unitTest(type: Test, dependsOn: assemble) {
     description = "run unit tests"
     testClassesDir = project.sourceSets.unitTest.output.classesDir
     classpath = project.sourceSets.unitTest.runtimeClasspath
