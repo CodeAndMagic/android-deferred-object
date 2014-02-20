@@ -35,6 +35,14 @@ public class SimpleDeferredObject<Success> extends AbstractSimplePromise<Success
         return deferredObject;
     }
 
+    public static <T, S extends T> SimpleDeferredObject<T[]> merge(SimplePromise<S>... promises) {
+        return new MergePromise<T, S>(0, promises);
+    }
+
+    public static <T, S extends T> SimpleDeferredObject<T[]> merge(int allowedFailures, SimplePromise<S>... promises) {
+        return new MergePromise<T, S>(allowedFailures, promises);
+    }
+
     @Override
     public void success(Success resolved) {
         super.success(resolved);
@@ -48,5 +56,72 @@ public class SimpleDeferredObject<Success> extends AbstractSimplePromise<Success
     @Override
     public void progress(Float progress) {
         super.progress(progress);
+    }
+
+    public static class MergePromise<T, S extends T> extends SimpleDeferredObject<T[]> {
+
+        private final SimplePromise<S>[] promises;
+        private final int length;
+        private final int allowedFailures;
+
+        private final Throwable[] failures;
+        private final S[] successes;
+        private int countCompleted = 0;
+        private int countFailures = 0;
+
+        private Callback<Throwable> newFailureCallback(final int index) {
+            return new Callback<Throwable>() {
+                @Override
+                public void onCallback(Throwable result) {
+                    synchronized (MergePromise.this) {
+                        failures[index] = result;
+                        countCompleted++;
+                        countFailures++;
+                        MergePromise.this.progress((float) countCompleted);
+
+                        if (countFailures > allowedFailures) {
+                            MergePromise.this.failure(new MergePromiseFailure("Failed MergePromise because more than '"
+                                    + allowedFailures + "' promises have failed.", failures));
+                        }
+                    }
+                }
+            };
+        }
+
+        private Callback<S> newSuccessCallback(final int index) {
+            return new Callback<S>() {
+                @Override
+                public void onCallback(S result) {
+                    synchronized (MergePromise.this) {
+                        successes[index] = result;
+                        countCompleted++;
+                        MergePromise.this.progress((float) countCompleted);
+
+                        if (countCompleted == length) {
+                            MergePromise.this.success(successes);
+                        }
+                    }
+                }
+            };
+        }
+
+        public MergePromise(int allowedFailures, SimplePromise<S>... promises) {
+            if (promises.length < 1) {
+                throw new IllegalArgumentException("You need at least one promise.");
+            }
+
+            this.promises = promises;
+            this.length = promises.length;
+            this.allowedFailures = allowedFailures < 0 ? promises.length : allowedFailures;
+
+            this.failures = new Throwable[length];
+            this.successes = (S[]) new Object[length];
+
+            for (int i = 0; i < length; ++i) {
+                final SimplePromise<S> promise = promises[i];
+                promise.onSuccess(newSuccessCallback(i));
+                promise.onFailure(newFailureCallback(i));
+            }
+        }
     }
 }

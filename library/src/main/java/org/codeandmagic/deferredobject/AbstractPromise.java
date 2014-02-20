@@ -71,9 +71,13 @@ public class AbstractPromise<Success, Failure, Progress> implements Promise<Succ
 
 
     protected void success(final Success resolved) {
-        this.result = resolved;
-        this.state = State.SUCCESS;
-        triggerSuccess();
+        if (state == State.PENDING) {
+            this.result = resolved;
+            this.state = State.SUCCESS;
+            triggerSuccess();
+        } else {
+            throw new IllegalStateException("Can't complete a Promise which is in state '" + state.name() + "'.");
+        }
     }
 
     protected final void triggerSuccess() {
@@ -84,9 +88,13 @@ public class AbstractPromise<Success, Failure, Progress> implements Promise<Succ
     }
 
     protected void failure(final Failure failure) {
-        this.failure = failure;
-        this.state = State.FAILED;
-        triggerFailure();
+        if (state == State.PENDING) {
+            this.failure = failure;
+            this.state = State.FAILED;
+            triggerFailure();
+        } else {
+            throw new IllegalStateException("Can't fail a Promise which is in state '" + state.name() + "'.");
+        }
     }
 
     protected final void triggerFailure() {
@@ -108,7 +116,7 @@ public class AbstractPromise<Success, Failure, Progress> implements Promise<Succ
     }
 
     protected void progress(final Progress progress) {
-        if (Promise.State.PENDING.compareTo(state) < 0) return;
+        if (State.PENDING.compareTo(state) < 0) return;
         for (final Callback<Progress> p : progressCallbacks) {
             p.onCallback(progress);
         }
