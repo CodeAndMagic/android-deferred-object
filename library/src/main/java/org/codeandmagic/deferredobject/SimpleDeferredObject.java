@@ -18,6 +18,8 @@
 
 package org.codeandmagic.deferredobject;
 
+import java.lang.reflect.Array;
+
 /**
  * Created by evelina on 10/02/2014.
  */
@@ -35,12 +37,12 @@ public class SimpleDeferredObject<Success> extends AbstractSimplePromise<Success
         return deferredObject;
     }
 
-    public static <T, S extends T> SimpleDeferredObject<T[]> merge(SimplePromise<S>... promises) {
-        return new MergePromise<T, S>(0, promises);
+    public static <T, S extends T> SimpleDeferredObject<T[]> merge(Class<T> clazz, SimplePromise<S>... promises) {
+        return new MergePromise<T, S>(clazz, 0, promises);
     }
 
-    public static <T, S extends T> SimpleDeferredObject<T[]> merge(int allowedFailures, SimplePromise<S>... promises) {
-        return new MergePromise<T, S>(allowedFailures, promises);
+    public static <T, S extends T> SimpleDeferredObject<T[]> merge(Class<T> clazz, int allowedFailures, SimplePromise<S>... promises) {
+        return new MergePromise<T, S>(clazz, allowedFailures, promises);
     }
 
     @Override
@@ -65,9 +67,10 @@ public class SimpleDeferredObject<Success> extends AbstractSimplePromise<Success
         private final int allowedFailures;
 
         private final Throwable[] failures;
-        private final S[] successes;
+        private final T[] successes;
         private int countCompleted = 0;
         private int countFailures = 0;
+
 
         private Callback<Throwable> newFailureCallback(final int index) {
             return new Callback<Throwable>() {
@@ -105,7 +108,7 @@ public class SimpleDeferredObject<Success> extends AbstractSimplePromise<Success
             };
         }
 
-        public MergePromise(int allowedFailures, SimplePromise<S>... promises) {
+        public MergePromise(Class<T> clazz, int allowedFailures, SimplePromise<S>... promises) {
             if (promises.length < 1) {
                 throw new IllegalArgumentException("You need at least one promise.");
             }
@@ -115,7 +118,7 @@ public class SimpleDeferredObject<Success> extends AbstractSimplePromise<Success
             this.allowedFailures = allowedFailures < 0 ? promises.length : allowedFailures;
 
             this.failures = new Throwable[length];
-            this.successes = (S[]) new Object[length];
+            this.successes = (T[]) Array.newInstance(clazz, length);
 
             for (int i = 0; i < length; ++i) {
                 final SimplePromise<S> promise = promises[i];

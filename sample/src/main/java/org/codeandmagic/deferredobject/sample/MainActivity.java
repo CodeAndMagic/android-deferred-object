@@ -2,8 +2,19 @@ package org.codeandmagic.deferredobject.sample;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import org.codeandmagic.deferredobject.Callback;
+import org.codeandmagic.deferredobject.SimpleDeferredObject;
+import org.codeandmagic.deferredobject.SimplePromise;
+import org.codeandmagic.deferredobject.impl.DeferredDownloader;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+
+import static android.os.Environment.*;
 
 public class MainActivity extends ActionBarActivity {
 
@@ -19,195 +30,115 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        log = (TextView) findViewById(R.id.log);
+
         progress1 = (TextView) findViewById(R.id.progress1);
         progress2 = (TextView) findViewById(R.id.progress2);
         progress3 = (TextView) findViewById(R.id.progress3);
 
         start = (Button) findViewById(R.id.start);
-//        start.setOnClickListener(new OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                try {
-//                    startTasks();
-//                } catch (MalformedURLException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        });
-
-        log = (TextView) findViewById(R.id.log);
+        start.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startTasks();
+            }
+        });
     }
 
-//    private ResolvePipe<HttpURLConnection, String, Throwable, Float> downloadFilter(final String fileName) {
-//        return new ResolvePipe<HttpURLConnection, String, Throwable, Float>() {
-//
-//            final DeferredObject<String, Throwable, Float> downloadPromise = new DeferredObject<String, Throwable, Float>() {
-//            };
-//
-//            @Override
-//            public Promise<String, Throwable, Float> pipeResolved(HttpURLConnection connection) {
-//                downloadInBackground(connection);
-//                return downloadPromise;
-//            }
-//
-//            void downloadInBackground(final HttpURLConnection connection) {
-//                new Thread() {
-//                    @Override
-//                    public void run() {
-//                        download(connection);
-//                    }
-//                }.start();
-//            }
-//
-//            void download(HttpURLConnection connection) {
-//                InputStream in = null;
-//                OutputStream out = null;
-//                try {
-//                    in = new BufferedInputStream(connection.getInputStream());
-//                    final int length = connection.getContentLength();
-//                    int downloaded = 0;
-//                    final File sdCard = Environment.getExternalStorageDirectory();
-//                    sdCard.mkdirs();
-//                    final File path = new File(sdCard, fileName);
-//                    if (!path.exists()) {
-//                        path.createNewFile();
-//                    }
-//                    out = new BufferedOutputStream(new FileOutputStream(path));
-//                    final byte[] buf = new byte[1024];
-//                    downloadPromise.progress(0f);
-//                    int read = 0;
-//                    while ((read = in.read(buf)) > 0) {
-//                        downloaded += read;
-//                        out.write(buf);
-//                        if (length > 0){
-//                            float percent = ((float)downloaded*100)/length;
-//                            downloadPromise.progress(percent);
-//                        }
-//                    }
-//                    out.flush();
-//                    downloadPromise.progress(100f);
-//                    downloadPromise.success(path.getAbsolutePath());
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                    downloadPromise.failure(e);
-//                } finally {
-//                    if (in != null) try {
-//                        in.close();
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
-//                    if (out != null) try {
-//                        out.close();
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//            }
-//        };
-//    }
-//
-//    private ProgressCallback<Float> progressReporter(final TextView t){
-//        return new ProgressCallback<Float>() {
-//            @Override
-//            public void onProgress(final Float p) {
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        t.setText(String.format("%.2f%%", p));
-//                    }
-//                });
-//            }
-//        };
-//    }
-//
-//    private ResolveCallback<String> successReporter(final TextView t){
-//        return new ResolveCallback<String>() {
-//            @Override
-//            public void onResolve(final String s) {
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        log.append("\n" + "Downloaded " + s);
-//                        done(t);
-//                    }
-//                });
-//            }
-//        };
-//    }
-//
-//    private RejectCallback<Throwable> failReporter(final String t){
-//        return new RejectCallback<Throwable>() {
-//            @Override
-//            public void onReject(final Throwable e) {
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        log.append("\nFailed " + t + " because " + e.getClass().getName() + " " + e.getMessage());
-//                    }
-//                });
-//            }
-//        };
-//    }
-//
-//
-//    private void startTasks() throws MalformedURLException {
-//        start.setText(getString(R.string.start));
-//        start.setEnabled(false);
-//        reset(progress1, progress2, progress3);
-//        log.setText("");
-//
-//        Promise<String, Throwable, Float> task1 = new DeferredHttpUrlConnection(new URL(EARTH))
-//                .pipe(downloadFilter("earth.jpg"))
-//                .onProgress(progressReporter(progress1))
-//                .onSuccess(successReporter(progress1))
-//                .onFailure(failReporter("task 1"));
-//
-//        Promise<String, Throwable, Float> task2 = new DeferredHttpUrlConnection(new URL(MARS))
-//                .pipe(downloadFilter("mars.png"))
-//                .onProgress(progressReporter(progress2))
-//                .onSuccess(successReporter(progress2))
-//                .onFailure(failReporter("task 2"));
-//
-//        Promise<String, Throwable, Float> task3 = new DeferredHttpUrlConnection(new URL(VENUS))
-//                .pipe(downloadFilter("venus.jpg"))
-//                .onProgress(progressReporter(progress3))
-//                .onSuccess(successReporter(progress3))
-//                .onFailure(failReporter("task 3"));
-//
-//        DeferredObject.when(task1, task2, task3)
-//            .onSuccess(new ResolveCallback<MergedPromiseResult3<String, String, String>>() {
-//                @Override
-//                public void onResolve(MergedPromiseResult3<String, String, String> stringStringStringMergedPromiseResult3) {
-//                    runOnUiThread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            start.setText(R.string.all_done);
-//                            start.setEnabled(true);
-//                        }
-//                    });
-//                }
-//            }).onFailure(new RejectCallback<MergedPromiseReject>() {
-//            @Override
-//            public void onReject(MergedPromiseReject mergedPromiseReject) {
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        start.setText(R.string.failure);
-//                        start.setEnabled(true);
-//                    }
-//                });
-//            }
-//        });
-//    }
-//
-//    private void done(TextView progress) {
-//        progress.getCompoundDrawables()[1].setLevel(1);
-//    }
-//
-//    private void reset(TextView...progress) {
-//        for(TextView p : progress) {
-//            p.getCompoundDrawables()[1].setLevel(0);
-//            p.setText(R.string.no_progress);
-//        }
-//    }
+    private void startTasks() {
+        final SimplePromise<File> promise1 = createPromise(EARTH, "Earth", progress1);
+        final SimplePromise<File> promise2 = createPromise(MARS, "Mars", progress2);
+        final SimplePromise<File> promise3 = createPromise(VENUS, "Venus", progress3);
+
+        SimpleDeferredObject.merge(File.class, promise1, promise2, promise3)
+                .runOnUiThread()
+                .onSuccess(new Callback<File[]>() {
+                    @Override
+                    public void onCallback(File[] result) {
+                        start.setText(R.string.all_done);
+                        start.setEnabled(true);
+                    }
+                })
+                .onFailure(new Callback<Throwable>() {
+                    @Override
+                    public void onCallback(Throwable result) {
+                        start.setText(R.string.failure);
+                        start.setEnabled(true);
+                    }
+                })
+                .onProgress(new Callback<Float>() {
+                    @Override
+                    public void onCallback(Float result) {
+                        log.append("Downloaded " + result + " out of 3.");
+                    }
+                });
+
+    }
+
+    private File getSdCardOutput(String fileName) throws IOException {
+        final String sdCardState = getExternalStorageState();
+        if (MEDIA_MOUNTED.equals(sdCardState)) {
+            final File sdCard = getExternalStorageDirectory();
+            sdCard.mkdirs();
+            final File path = new File(sdCard, fileName);
+            if (!path.exists()) {
+                path.createNewFile();
+            }
+            return path;
+        }
+        throw new IOException("Can't write on the SDCard!");
+    }
+
+    private void done(TextView progress) {
+        progress.getCompoundDrawables()[1].setLevel(1);
+    }
+
+    private void reset(TextView... progress) {
+        for (TextView p : progress) {
+            p.getCompoundDrawables()[1].setLevel(0);
+            p.setText(R.string.no_progress);
+        }
+    }
+
+    private SimplePromise<File> createPromise(String url, String fileName, TextView progress) {
+        try {
+            return new DeferredDownloader(new URL(url), getSdCardOutput(fileName))
+                    .runOnUiThread()
+                    .onSuccess(successCallback(progress))
+                    .onFailure(failureCallback(url))
+                    .onProgress(progressCallback(progress));
+        } catch (IOException e) {
+            log.setText("Can't start download " + url + " due to exception: " + e.getMessage());
+            return null;
+        }
+    }
+
+    private Callback<File> successCallback(final TextView textView) {
+        return new Callback<File>() {
+            @Override
+            public void onCallback(File result) {
+                log.append("\nDownloaded file " + result.getPath());
+                done(textView);
+            }
+        };
+    }
+
+    private Callback<Throwable> failureCallback(final String fileName) {
+        return new Callback<Throwable>() {
+            @Override
+            public void onCallback(Throwable e) {
+                log.append("\nFailed " + fileName + " because " + e.getClass().getName() + " " + e.getMessage());
+            }
+        };
+    }
+
+    private Callback<Float> progressCallback(final TextView textView) {
+        return new Callback<Float>() {
+            @Override
+            public void onCallback(Float result) {
+                textView.setText(String.format("%.2f%%", result));
+            }
+        };
+    }
+
 }
