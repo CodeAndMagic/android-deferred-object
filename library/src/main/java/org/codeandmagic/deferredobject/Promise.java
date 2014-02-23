@@ -22,14 +22,14 @@ package org.codeandmagic.deferredobject;
  * A Promise is an immutable contract for an operation that might complete in the future.
  * The operation can have a successful outcome or it might fail with a specific result.
  * It may also send notifications about the progress of the operation.
- *
+ * <p/>
  * A direct result <b>cannot</b> be extracted from a Promise,
  * instead you should register {@link org.codeandmagic.deferredobject.Callback}s for success, failure or progress.
- *
+ * <p/>
  * {@link org.codeandmagic.deferredobject.MapTransformation}s and
  * {@link EitherMapTransformation}s can be applied to a Promise to obtain a new one
  * that filters or changes the result or failure.
- *
+ * <p/>
  * User: cvrabie1 Date: 09/07/2012
  */
 public interface Promise<Success, Failure, Progress> {
@@ -160,7 +160,7 @@ public interface Promise<Success, Failure, Progress> {
     /**
      * Creates a new Promise by applying a {@link org.codeandmagic.deferredobject.MapTransformation} from failure to success.
      * If the Promise is successful, the result will not be affected by the transformation.
-     *
+     * <p/>
      * For example, when the request to download an image from the Internet fails, provide a default one.
      *
      * @param transform
@@ -171,7 +171,7 @@ public interface Promise<Success, Failure, Progress> {
     /**
      * Creates a new Promise and tries to transform a failure into a success. If the transformation fails, the result
      * will be also a failure.
-     *
+     * <p/>
      * For example, when the request to download an image from the Internet fails, try to provide a local cached copy,
      * but if there is no image in the cache, the Promise will fail.
      *
@@ -182,7 +182,7 @@ public interface Promise<Success, Failure, Progress> {
 
     /**
      * Pipes the success of a Promise into another asynchronous operation and returns a new Promise for that operation.
-     *
+     * <p/>
      * For example, make a request to a server, then when you have a successful result, make another request.
      * The result of the pipe is a new Promise for the second operation.
      *
@@ -195,12 +195,19 @@ public interface Promise<Success, Failure, Progress> {
 
     /**
      * Pipes the failure of a Promise into another asynchronous operation and returns a new Promise for that operation.
-     *
+     * <p/>
      * For example, make a request to a server and if that fails, make another request to a different server.
      *
      * @param transform
      * @return
      */
     public Promise<Success, Failure, Void> recoverWith(final PipeTransformation<Failure, Success, Failure> transform);
+
+    /**
+     * Creates a new promise which makes sure the success, failure and progress callbacks are run on the UI thread.
+     *
+     * @return
+     */
+    public Promise<Success, Failure, Progress> runOnUiThread();
 
 }

@@ -18,6 +18,9 @@
 
 package org.codeandmagic.deferredobject;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -358,6 +361,36 @@ public class AbstractPromise<Success, Failure, Progress> implements Promise<Succ
                     public void onCallback(Either<Failure, Success> result2) {
                         // When the second operation completes, complete the new Promise
                         promise.complete(result2);
+                    }
+                });
+            }
+        });
+
+        return promise;
+    }
+
+    @Override
+    public Promise<Success, Failure, Progress> runOnUiThread() {
+        final AbstractPromise<Success, Failure, Progress> promise = newPromise();
+        final Handler mainHandler = new Handler(Looper.getMainLooper());
+
+        this.onComplete(new Callback<Either<Failure, Success>>() {
+            @Override
+            public void onCallback(final Either<Failure, Success> result) {
+                mainHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        promise.complete(result);
+                    }
+                });
+            }
+        }).onProgress(new Callback<Progress>() {
+            @Override
+            public void onCallback(final Progress result) {
+                mainHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        promise.progress(result);
                     }
                 });
             }

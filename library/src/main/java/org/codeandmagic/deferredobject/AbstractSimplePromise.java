@@ -121,4 +121,9 @@ public class AbstractSimplePromise<Success> extends AbstractPromise<Success, Thr
 
         return promise;
     }
+
+    @Override
+    public SimplePromise<Success> runOnUiThread() {
+        return (SimplePromise<Success>) super.runOnUiThread();
+    }
 }

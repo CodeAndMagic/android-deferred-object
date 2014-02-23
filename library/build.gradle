@@ -31,8 +31,7 @@ configurations {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:19.0.1'
-    compile 'com.android.support:appcompat-v7:19.0.1'
+    compile 'com.android.support:support-v4:+'
     //compile fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
 
     unitTestCompile files("$project.buildDir/classes/release")
