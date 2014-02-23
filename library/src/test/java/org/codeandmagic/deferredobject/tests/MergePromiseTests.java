@@ -29,7 +29,7 @@ public class MergePromiseTests {
         Callback<Throwable> onFailure = mock(Callback.class);
         Callback<Float> onProgress = mock(Callback.class);
 
-        SimplePromise<Integer[]> merged = SimpleDeferredObject.merge(p1, p2, p3)
+        SimplePromise<Integer[]> merged = SimpleDeferredObject.<Integer, Integer>merge(p1, p2, p3)
                 .onSuccess(onSuccess)
                 .onFailure(onFailure)
                 .onProgress(onProgress);
@@ -60,7 +60,7 @@ public class MergePromiseTests {
         Callback<Throwable> onFailure = mock(Callback.class);
         Callback<Float> onProgress = mock(Callback.class);
 
-        SimplePromise<Integer[]> merged = SimpleDeferredObject.merge(p1, p2, p3)
+        SimplePromise<Integer[]> merged = SimpleDeferredObject.<Integer, Integer>merge(p1, p2, p3)
                 .onSuccess(onSuccess)
                 .onFailure(onFailure)
                 .onProgress(onProgress);
@@ -98,7 +98,7 @@ public class MergePromiseTests {
         Callback<Throwable> onFailure = mock(Callback.class);
         Callback<Float> onProgress = mock(Callback.class);
 
-        SimplePromise<Integer[]> merged = SimpleDeferredObject.merge(2, p1, p2, p3)
+        SimplePromise<Integer[]> merged = SimpleDeferredObject.<Integer, Integer>merge(2, p1, p2, p3)
                 .onSuccess(onSuccess)
                 .onFailure(onFailure)
                 .onProgress(onProgress);
