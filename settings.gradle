@@ -16,4 +16,4 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-include ':core', ':sample'
+include ':core', ':modules:apache', ':sample'

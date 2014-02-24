@@ -1,0 +1,3 @@
+[submodule "modules/apache"]
+	path = modules/apache
+	url = git@github.com:CodeAndMagic/android-promise-apache.git
