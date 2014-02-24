@@ -1,6 +1,6 @@
 package org.codeandmagic.promise.impl;
 
-import org.codeandmagic.promise.AbstractSimplePromise;
+import org.codeandmagic.promise.AbstractPromise;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -11,7 +11,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 /**
  * Created by evelina on 23/02/2014.
  */
-public class DeferredDownloader extends AbstractSimplePromise<File> {
+public class DeferredDownloader extends AbstractPromise<File> {
 
     private static final ThreadPoolExecutor DEFAULT_EXECUTOR = new ScheduledThreadPoolExecutor(4);
 

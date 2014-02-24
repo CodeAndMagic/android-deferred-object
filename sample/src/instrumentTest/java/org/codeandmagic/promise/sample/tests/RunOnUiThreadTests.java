@@ -2,8 +2,8 @@ package org.codeandmagic.promise.sample.tests;
 
 import android.test.ActivityInstrumentationTestCase2;
 import org.codeandmagic.promise.Callback;
-import org.codeandmagic.promise.SimpleDeferredObject;
-import org.codeandmagic.promise.SimplePromise;
+import org.codeandmagic.promise.DeferredObject;
+import org.codeandmagic.promise.Promise;
 import org.codeandmagic.promise.sample.MainActivity;
 
 /**
@@ -19,7 +19,7 @@ public class RunOnUiThreadTests extends ActivityInstrumentationTestCase2<MainAct
     }
 
     public void testRunOnUiThread() {
-        final SimpleDeferredObject<String> promise = new SimpleDeferredObject<String>();
+        final DeferredObject<String> promise = new DeferredObject<String>();
         promise.onSuccess(new Callback<String>() {
             @Override
             public void onCallback(String result) {
@@ -27,7 +27,7 @@ public class RunOnUiThreadTests extends ActivityInstrumentationTestCase2<MainAct
             }
         });
 
-        final SimplePromise<String> promise2 = promise.runOnUiThread();
+        final Promise<String> promise2 = promise.runOnUiThread();
         promise2.onSuccess(new Callback<String>() {
             @Override
             public void onCallback(String result) {

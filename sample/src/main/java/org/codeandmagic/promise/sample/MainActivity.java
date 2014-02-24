@@ -6,8 +6,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import org.codeandmagic.promise.Callback;
-import org.codeandmagic.promise.SimpleDeferredObject;
-import org.codeandmagic.promise.SimplePromise;
+import org.codeandmagic.promise.Promise;
+import org.codeandmagic.promise.DeferredObject;
 import org.codeandmagic.promise.impl.DeferredDownloader;
 
 import java.io.File;
@@ -46,11 +46,11 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void startTasks() {
-        final SimplePromise<File> promise1 = createPromise(EARTH, "Earth", progress1);
-        final SimplePromise<File> promise2 = createPromise(MARS, "Mars", progress2);
-        final SimplePromise<File> promise3 = createPromise(VENUS, "Venus", progress3);
+        final Promise<File> promise1 = createPromise(EARTH, "Earth", progress1);
+        final Promise<File> promise2 = createPromise(MARS, "Mars", progress2);
+        final Promise<File> promise3 = createPromise(VENUS, "Venus", progress3);
 
-        SimpleDeferredObject.merge(File.class, promise1, promise2, promise3)
+        DeferredObject.merge(File.class, promise1, promise2, promise3)
                 .runOnUiThread()
                 .onSuccess(new Callback<File[]>() {
                     @Override
@@ -100,7 +100,7 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-    private SimplePromise<File> createPromise(String url, String fileName, TextView progress) {
+    private Promise<File> createPromise(String url, String fileName, TextView progress) {
         try {
             return new DeferredDownloader(new URL(url), getSdCardOutput(fileName))
                     .runOnUiThread()

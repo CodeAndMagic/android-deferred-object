@@ -19,6 +19,8 @@
 package org.codeandmagic.promise.tests;
 
 import org.codeandmagic.promise.*;
+import org.codeandmagic.promise.Either.Left;
+import org.codeandmagic.promise.Either.Right;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -32,14 +34,14 @@ import static org.junit.Assert.*;
 @RunWith(JUnit4.class)
 public class TransformationTests {
 
-    private MapTransformation<Integer, String> intToString = new MapTransformation<Integer, String>() {
+    private Transformation<Integer, String> intToString = new Transformation<Integer, String>() {
         @Override
         public String transform(Integer success) {
             return (success * 2) + "!";
         }
     };
 
-    private EitherMapTransformation<String, Integer, Throwable> stringToInt = new EitherMapTransformation<String, Integer, Throwable>() {
+    private Transformation<String, Either<Throwable, Integer>> stringToInt = new Transformation<String, Either<Throwable,Integer>>() {
         @Override
         public Either<Throwable, Integer> transform(String value) {
             try {
@@ -53,8 +55,8 @@ public class TransformationTests {
     @Test
     public void testMapSuccess() {
         Callback<String> onSuccess = mock(Callback.class);
-        DeferredObject<Integer, Void, Void> promise = new DeferredObject<Integer, Void, Void>();
-        Promise<String, Void, Void> promise2 = promise.map(intToString).onSuccess(onSuccess);
+        DeferredObject3<Integer, Void, Void> promise = new DeferredObject3<Integer, Void, Void>();
+        Promise3<String, Void, Void> promise2 = promise.map(intToString).onSuccess(onSuccess);
 
         assertFalse(promise2.isSuccess());
 
@@ -66,8 +68,8 @@ public class TransformationTests {
 
     @Test
     public void testMapFailure() {
-        DeferredObject<Integer, Throwable, Void> promise = new DeferredObject<Integer, Throwable, Void>();
-        Promise<String, Throwable, Void> promise2 = promise.map(intToString);
+        DeferredObject3<Integer, Throwable, Void> promise = new DeferredObject3<Integer, Throwable, Void>();
+        Promise3<String, Throwable, Void> promise2 = promise.map(intToString);
 
         Callback<String> onSuccess = mock(Callback.class);
         Callback<Throwable> onFailure = mock(Callback.class);
@@ -87,8 +89,8 @@ public class TransformationTests {
 
     @Test
     public void testFlatMap() {
-        DeferredObject<String, Throwable, Void> promise = new DeferredObject<String, Throwable, Void>();
-        Promise<Integer, Throwable, Void> promise2 = promise.map(stringToInt);
+        DeferredObject3<String, Throwable, Void> promise = new DeferredObject3<String, Throwable, Void>();
+        Promise3<Integer, Throwable, Void> promise2 = promise.flatMap(stringToInt);
 
         Callback<Integer> onSuccess = mock(Callback.class);
         Callback<Throwable> onFailure = mock(Callback.class);

@@ -1,6 +1,9 @@
 package org.codeandmagic.promise.tests;
 
 import org.codeandmagic.promise.*;
+import org.codeandmagic.promise.DeferredObject;
+import org.codeandmagic.promise.Promise;
+import org.codeandmagic.promise.Transformation;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -15,14 +18,14 @@ import static org.mockito.Mockito.*;
 @RunWith(JUnit4.class)
 public class SimplePromiseTests {
 
-    private MapTransformation<Integer, String> intToString = new MapTransformation<Integer, String>() {
+    private Transformation<Integer, String> intToString = new Transformation<Integer, String>() {
         @Override
         public String transform(Integer success) {
             return (success * 2) + "!";
         }
     };
 
-    private MapTransformation<Throwable, String> throwableToString = new MapTransformation<Throwable, String>() {
+    private Transformation<Throwable, String> throwableToString = new Transformation<Throwable, String>() {
         @Override
         public String transform(Throwable value) {
             return value.getMessage();
@@ -32,8 +35,8 @@ public class SimplePromiseTests {
     @Test
     public void testMapSuccess() {
         Callback<String> callback = mock(Callback.class);
-        SimpleDeferredObject<Integer> promise = new SimpleDeferredObject<Integer>();
-        SimplePromise<String> promise2 = promise.map(intToString).onSuccess(callback);
+        DeferredObject<Integer> promise = new DeferredObject<Integer>();
+        Promise<String> promise2 = promise.map(intToString).onSuccess(callback);
 
         assertFalse(promise2.isSuccess());
 
@@ -47,8 +50,8 @@ public class SimplePromiseTests {
     public void testPromiseGeneralisation() throws Exception {
         Callback<String> onSuccess = mock(Callback.class);
         Callback<String> onFailure = mock(Callback.class);
-        SimpleDeferredObject<Integer> promise = new SimpleDeferredObject<Integer>();
-        Promise<String, String, Float> promise2 = promise
+        DeferredObject<Integer> promise = new DeferredObject<Integer>();
+        Promise3<String, String, Float> promise2 = promise
                 .map(intToString, throwableToString)
                 .onSuccess(onSuccess)
                 .onFailure(onFailure);

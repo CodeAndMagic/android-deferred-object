@@ -18,38 +18,113 @@
 
 package org.codeandmagic.promise;
 
-/**
- * A DeferredObject is a {@link org.codeandmagic.promise.Promise} that exposes methods which allow setting
- * its completion status.
- * <p/>
- * User: cvrabie1 Date: 09/07/2012
- */
-public class DeferredObject<Success, Failure, Progress> extends AbstractPromise<Success, Failure, Progress> {
+import java.lang.reflect.Array;
 
-    public static <S, F, P> DeferredObject<S, F, P> successful(S value) {
-        final DeferredObject<S, F, P> deferredObject = new DeferredObject<S, F, P>();
+/**
+ * Created by evelina on 10/02/2014.
+ */
+public class DeferredObject<Success> extends AbstractPromise<Success> {
+
+    public static <S> DeferredObject<S> successful(S value) {
+        final DeferredObject<S> deferredObject = new DeferredObject<S>();
         deferredObject.success(value);
         return deferredObject;
     }
 
-    public static <S, F, P> DeferredObject<S, F, P> failed(F value) {
-        final DeferredObject<S, F, P> deferredObject = new DeferredObject<S, F, P>();
+    public static <S> DeferredObject<S> failed(Throwable value) {
+        final DeferredObject<S> deferredObject = new DeferredObject<S>();
         deferredObject.failure(value);
         return deferredObject;
     }
 
-    @Override
-    public final void progress(Progress progress) {
-        super.progress(progress);
+    public static <T, S extends T> DeferredObject<T[]> merge(Class<T> clazz, Promise<S>... promises) {
+        return new MergePromise<T, S>(clazz, 0, promises);
+    }
+
+    public static <T, S extends T> DeferredObject<T[]> merge(Class<T> clazz, int allowedFailures, Promise<S>... promises) {
+        return new MergePromise<T, S>(clazz, allowedFailures, promises);
     }
 
     @Override
-    public final void success(Success resolved) {
+    public void success(Success resolved) {
         super.success(resolved);
     }
 
     @Override
-    public final void failure(Failure failure) {
-        super.failure(failure);
+    public void failure(Throwable throwable) {
+        super.failure(throwable);
+    }
+
+    @Override
+    public void progress(Float progress) {
+        super.progress(progress);
+    }
+
+    public static class MergePromise<T, S extends T> extends DeferredObject<T[]> {
+
+        private final Promise<S>[] promises;
+        private final int length;
+        private final int allowedFailures;
+
+        private final Throwable[] failures;
+        private final T[] successes;
+        private int countCompleted = 0;
+        private int countFailures = 0;
+
+
+        private Callback<Throwable> newFailureCallback(final int index) {
+            return new Callback<Throwable>() {
+                @Override
+                public void onCallback(Throwable result) {
+                    synchronized (MergePromise.this) {
+                        failures[index] = result;
+                        countCompleted++;
+                        countFailures++;
+                        MergePromise.this.progress((float) countCompleted);
+
+                        if (countFailures > allowedFailures) {
+                            MergePromise.this.failure(new MergePromiseFailure("Failed MergePromise because more than '"
+                                    + allowedFailures + "' promises have failed.", failures));
+                        }
+                    }
+                }
+            };
+        }
+
+        private Callback<S> newSuccessCallback(final int index) {
+            return new Callback<S>() {
+                @Override
+                public void onCallback(S result) {
+                    synchronized (MergePromise.this) {
+                        successes[index] = result;
+                        countCompleted++;
+                        MergePromise.this.progress((float) countCompleted);
+
+                        if (countCompleted == length) {
+                            MergePromise.this.success(successes);
+                        }
+                    }
+                }
+            };
+        }
+
+        public MergePromise(Class<T> clazz, int allowedFailures, Promise<S>... promises) {
+            if (promises.length < 1) {
+                throw new IllegalArgumentException("You need at least one promise.");
+            }
+
+            this.promises = promises;
+            this.length = promises.length;
+            this.allowedFailures = allowedFailures < 0 ? promises.length : allowedFailures;
+
+            this.failures = new Throwable[length];
+            this.successes = (T[]) Array.newInstance(clazz, length);
+
+            for (int i = 0; i < length; ++i) {
+                final Promise<S> promise = promises[i];
+                promise.onSuccess(newSuccessCallback(i));
+                promise.onFailure(newFailureCallback(i));
+            }
+        }
     }
 }

@@ -20,8 +20,8 @@ package org.codeandmagic.promise.tests;
 
 import org.codeandmagic.promise.Callback;
 import org.codeandmagic.promise.Either;
-import org.codeandmagic.promise.Right;
 import org.codeandmagic.promise.*;
+import org.codeandmagic.promise.Either.Right;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -36,7 +36,7 @@ public class CallbackTests {
 
     @Test
     public void testCallbacks() {
-        DeferredObject<Integer, Void, Void> promise = new DeferredObject<Integer, Void, Void>();
+        DeferredObject3<Integer, Void, Void> promise = new DeferredObject3<Integer, Void, Void>();
         Callback<Integer> onSuccess = mock(Callback.class);
         Callback<Either<Void, Integer>> onComplete = mock(Callback.class);
 

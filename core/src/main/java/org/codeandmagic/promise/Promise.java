@@ -19,195 +19,44 @@
 package org.codeandmagic.promise;
 
 /**
- * A Promise is an immutable contract for an operation that might complete in the future.
- * The operation can have a successful outcome or it might fail with a specific result.
- * It may also send notifications about the progress of the operation.
+ * Simplified version of {@link Promise3} which returns a {@link java.lang.Throwable}
+ * in case of failure and exposes progress as a Float.
  * <p/>
- * A direct result <b>cannot</b> be extracted from a Promise,
- * instead you should register {@link org.codeandmagic.promise.Callback}s for success, failure or progress.
- * <p/>
- * {@link org.codeandmagic.promise.MapTransformation}s and
- * {@link EitherMapTransformation}s can be applied to a Promise to obtain a new one
- * that filters or changes the result or failure.
- * <p/>
- * User: cvrabie1 Date: 09/07/2012
+ * Created by cristian on 10/02/2014.
  */
-public interface Promise<Success, Failure, Progress> {
+public interface Promise<Success> extends Promise3<Success, Throwable, Float> {
 
-    public enum State {
-        PENDING, FAILED, SUCCESS
-    }
+    @Override
+    public Promise<Success> onSuccess(Callback<Success> onSuccess);
 
-    public State state();
+    @Override
+    public Promise<Success> onFailure(Callback<Throwable> onFailure);
 
-    public boolean isPending();
+    @Override
+    public Promise<Success> onProgress(Callback<Float> onProgress);
 
-    public boolean isFailure();
+    @Override
+    public Promise<Success> onComplete(Callback<Either<Throwable, Success>> onComplete);
 
-    public boolean isSuccess();
+    @Override
+    public <Success2> Promise<Success2> map(final Transformation<Success, Success2> transform);
 
-    /* -------------------------------------------------------------------------------------- */
-    // Completion handlers
-    /* -------------------------------------------------------------------------------------- */
+    @Override
+    public Promise<Success> andThen(Callback<Success> onSuccess,
+                                          Callback<Throwable> onFailure,
+                                          Callback<Float> onProgress);
 
-    /**
-     * Called when the operation completes, either successfully or with an exception.
-     *
-     * @param onComplete
-     * @return
-     */
-    public Promise<Success, Failure, Progress> onComplete(final Callback<Either<Failure, Success>> onComplete);
+    @Override
+    public Promise<Success> flatRecover(final Transformation<Throwable, Either<Throwable, Success>> transform);
 
-    /**
-     * Called when the operation completes with success.
-     *
-     * @param onSuccess
-     * @return
-     */
-    public Promise<Success, Failure, Progress> onSuccess(final Callback<Success> onSuccess);
-
-    /**
-     * Called when the operation completes with a failure.
-     *
-     * @param onFailure
-     * @return
-     */
-    public Promise<Success, Failure, Progress> onFailure(final Callback<Failure> onFailure);
-
-    /**
-     * Called when there is a progress update on the operation.
-     *
-     * @param onProgress
-     * @return
-     */
-    public Promise<Success, Failure, Progress> onProgress(final Callback<Progress> onProgress);
+    @Override
+    public Promise<Success> recover(final Transformation<Throwable, Success> transform);
 
 
-    /**
-     * Registers callbacks for success, failure and progress. The Promise is left unchanged and can be
-     * chained.
-     *
-     * @param onSuccess
-     * @param onFailure
-     * @param onProgress
-     * @return
-     */
-    public Promise<Success, Failure, Progress> andThen(Callback<Success> onSuccess,
-                                                       Callback<Failure> onFailure,
-                                                       Callback<Progress> onProgress);
+    public <Success2> Promise<Success2> pipe(final Pipe<Success, Success2> transform);
 
-    /* -------------------------------------------------------------------------------------- */
-    // Transformations
-    /* -------------------------------------------------------------------------------------- */
+    public Promise<Success> recoverWith(final Pipe<Throwable, Success> transform);
 
-    /**
-     * Creates a new Promise by applying a {@link MapTransformation} to
-     * the success result of this Promise.
-     *
-     * @param transform  transforms Success into Success2
-     * @param <Success2>
-     * @return
-     */
-    public <Success2> Promise<Success2, Failure, Progress>
-    map(final MapTransformation<Success, Success2> transform);
-
-    /**
-     * Creates a new Promise by applying {@link MapTransformation}s to the success and
-     * failure results of this Promise.
-     *
-     * @param transformSuccess transformation between success types or null if you want it unchanged
-     * @param transformFailure transformation between failure types or null if you want it unchanged
-     * @param <Success2>
-     * @param <Failure2>
-     * @return
-     */
-    public <Success2, Failure2> Promise<Success2, Failure2, Progress>
-    map(final MapTransformation<Success, Success2> transformSuccess,
-        final MapTransformation<Failure, Failure2> transformFailure);
-
-    /**
-     * Creates a new Promise by applying {@link MapTransformation}s to the success, failure
-     * and progress results of this Promise.
-     *
-     * @param transformSuccess  transformation between success types or null if you want it unchanged
-     * @param transformFailure  transformation between failure types or null if you want it unchanged
-     * @param transformProgress transformation between progress types or null if you want it unchanged
-     * @param <Success2>
-     * @param <Failure2>
-     * @param <Progress2>
-     * @return
-     */
-    public <Success2, Failure2, Progress2> Promise<Success2, Failure2, Progress2>
-    map(final MapTransformation<Success, Success2> transformSuccess,
-        final MapTransformation<Failure, Failure2> transformFailure,
-        final MapTransformation<Progress, Progress2> transformProgress);
-
-    /**
-     * Creates a new Promise by applying a {@link EitherMapTransformation}.
-     * By contrast to a {@link org.codeandmagic.promise.MapTransformation}, this can transform a successful
-     * Promise into a failed one.
-     * <p/>
-     * Example: a successful HTTP call can be transformed into a failed one if the JSON de-serialisation (expressed
-     * as a {@link EitherMapTransformation}) throws an error.
-     *
-     * @param transform
-     * @param <Success2>
-     * @return
-     */
-    public <Success2> Promise<Success2, Failure, Progress>
-    map(final EitherMapTransformation<Success, Success2, Failure> transform);
-
-    /**
-     * Creates a new Promise by applying a {@link org.codeandmagic.promise.MapTransformation} from failure to success.
-     * If the Promise is successful, the result will not be affected by the transformation.
-     * <p/>
-     * For example, when the request to download an image from the Internet fails, provide a default one.
-     *
-     * @param transform
-     * @return
-     */
-    public Promise<Success, Failure, Progress> recover(final MapTransformation<Failure, Success> transform);
-
-    /**
-     * Creates a new Promise and tries to transform a failure into a success. If the transformation fails, the result
-     * will be also a failure.
-     * <p/>
-     * For example, when the request to download an image from the Internet fails, try to provide a local cached copy,
-     * but if there is no image in the cache, the Promise will fail.
-     *
-     * @param transform
-     * @return
-     */
-    public Promise<Success, Failure, Progress> recover(final EitherMapTransformation<Failure, Success, Failure> transform);
-
-    /**
-     * Pipes the success of a Promise into another asynchronous operation and returns a new Promise for that operation.
-     * <p/>
-     * For example, make a request to a server, then when you have a successful result, make another request.
-     * The result of the pipe is a new Promise for the second operation.
-     *
-     * @param transform
-     * @param <Success2>
-     * @return
-     */
-    public <Success2> Promise<Success2, Failure, Void> pipe(final PipeTransformation<Success, Success2, Failure> transform);
-
-
-    /**
-     * Pipes the failure of a Promise into another asynchronous operation and returns a new Promise for that operation.
-     * <p/>
-     * For example, make a request to a server and if that fails, make another request to a different server.
-     *
-     * @param transform
-     * @return
-     */
-    public Promise<Success, Failure, Void> recoverWith(final PipeTransformation<Failure, Success, Failure> transform);
-
-    /**
-     * Creates a new promise which makes sure the success, failure and progress callbacks are run on the UI thread.
-     *
-     * @return
-     */
-    public Promise<Success, Failure, Progress> runOnUiThread();
-
+    @Override
+    public Promise<Success> runOnUiThread();
 }
