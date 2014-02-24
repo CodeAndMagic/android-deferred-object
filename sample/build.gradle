@@ -22,5 +22,5 @@ dependencies {
     compile 'com.android.support:support-v4:+'
     compile 'com.android.support:appcompat-v7:+'
     compile fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
-    compile project(':library')
+    compile project(':core')
 }

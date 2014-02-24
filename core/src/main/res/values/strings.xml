@@ -17,5 +17,5 @@
   -->
 
 <resources>
-    <string name="app_name">AndroidDeferredObject</string>
+    <string name="app_name">Android Promise Library</string>
 </resources>
