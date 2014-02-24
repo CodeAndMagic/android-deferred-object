@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2014 Cristian Vrabie, Evelina Vrabie.
+ *
+ * This file is part of android-promise.
+ * android-promise is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by the
+ * Free Software Foundation, either version 3 of the License,or (at your option)
+ * any later version.
+ *
+ * android-promise is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with android-promise
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.codeandmagic.promise.sample;
 
 import android.os.Bundle;
@@ -7,8 +25,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import org.codeandmagic.promise.Callback;
 import org.codeandmagic.promise.Promise;
-import org.codeandmagic.promise.DeferredObject;
-import org.codeandmagic.promise.impl.DeferredDownloader;
+import org.codeandmagic.promise.impl.DeferredObject;
+import org.codeandmagic.promise.http.DownloadPromise;
+import org.codeandmagic.promise.util.TextViewUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -102,11 +121,11 @@ public class MainActivity extends ActionBarActivity {
 
     private Promise<File> createPromise(String url, String fileName, TextView progress) {
         try {
-            return new DeferredDownloader(new URL(url), getSdCardOutput(fileName))
+            return new DownloadPromise(new URL(url), getSdCardOutput(fileName))
                     .runOnUiThread()
                     .onSuccess(successCallback(progress))
                     .onFailure(failureCallback(url))
-                    .onProgress(progressCallback(progress));
+                    .onProgress(TextViewUtils.setPercent(progress));
         } catch (IOException e) {
             log.setText("Can't start download " + url + " due to exception: " + e.getMessage());
             return null;
@@ -131,14 +150,4 @@ public class MainActivity extends ActionBarActivity {
             }
         };
     }
-
-    private Callback<Float> progressCallback(final TextView textView) {
-        return new Callback<Float>() {
-            @Override
-            public void onCallback(Float result) {
-                textView.setText(String.format("%.2f%%", result));
-            }
-        };
-    }
-
 }

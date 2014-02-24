@@ -1,6 +1,24 @@
-package org.codeandmagic.promise.impl;
+/*
+ * Copyright (c) 2014 Cristian Vrabie, Evelina Vrabie.
+ *
+ * This file is part of android-promise.
+ * android-promise is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by the
+ * Free Software Foundation, either version 3 of the License,or (at your option)
+ * any later version.
+ *
+ * android-promise is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with android-promise
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
 
-import org.codeandmagic.promise.AbstractPromise;
+package org.codeandmagic.promise.http;
+
+import org.codeandmagic.promise.impl.AbstractPromise;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -11,7 +29,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 /**
  * Created by evelina on 23/02/2014.
  */
-public class DeferredDownloader extends AbstractPromise<File> {
+public class DownloadPromise extends AbstractPromise<File> {
 
     private static final ThreadPoolExecutor DEFAULT_EXECUTOR = new ScheduledThreadPoolExecutor(4);
 
@@ -19,11 +37,11 @@ public class DeferredDownloader extends AbstractPromise<File> {
     private final File output;
     private final ThreadPoolExecutor executor;
 
-    public DeferredDownloader(final URL url, final File output) {
+    public DownloadPromise(final URL url, final File output) {
         this(url, output, DEFAULT_EXECUTOR);
     }
 
-    public DeferredDownloader(final URL url, final File output, final ThreadPoolExecutor executor) {
+    public DownloadPromise(final URL url, final File output, final ThreadPoolExecutor executor) {
         this.url = url;
         this.output = output;
         this.executor = executor;

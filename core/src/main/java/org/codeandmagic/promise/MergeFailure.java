@@ -19,12 +19,14 @@
 package org.codeandmagic.promise;
 
 /**
- * Transforms a result of type T1 into T2.
- * <p/>
- * Created by cristian on 10/02/2014.
+ * Created by cristian on 15/02/2014.
  */
-public interface Transformation<T1, T2> {
+public class MergeFailure extends Exception {
 
-    T2 transform(T1 value);
+    public final Throwable[] failures;
 
+    public MergeFailure(String message, Throwable[] failures) {
+        super(message);
+        this.failures = failures;
+    }
 }
