@@ -58,6 +58,11 @@ public class AbstractPromise<Success> extends AbstractPromise3<Success, Throwabl
     }
 
     @Override
+    public <Success2> Promise<Success2> flatMap(Transformation<Success, Either<Throwable, Success2>> transform) {
+        return (Promise<Success2>) super.flatMap(transform);
+    }
+
+    @Override
     public Promise<Success> recover(Transformation<Throwable, Success> transform) {
         return (Promise<Success>) super.recover(transform);
     }
@@ -69,8 +74,8 @@ public class AbstractPromise<Success> extends AbstractPromise3<Success, Throwabl
 
     @Override
     public Promise<Success> andThen(Callback<Success> onSuccess,
-                                          Callback<Throwable> onFailure,
-                                          Callback<Float> onProgress) {
+                                    Callback<Throwable> onFailure,
+                                    Callback<Float> onProgress) {
         return (Promise<Success>) super.andThen(onSuccess, onFailure, onProgress);
     }
 

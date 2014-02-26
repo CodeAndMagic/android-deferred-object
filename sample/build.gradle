@@ -39,6 +39,9 @@ android {
 dependencies {
     compile 'com.android.support:support-v4:+'
     compile 'com.android.support:appcompat-v7:+'
-    compile fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
     compile project(':core')
+
+    instrumentTestCompile('com.google.dexmaker:dexmaker:1.0')
+    instrumentTestCompile('com.google.dexmaker:dexmaker-mockito:1.0')
+
 }
