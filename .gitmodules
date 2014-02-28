@@ -1,0 +1,3 @@
+[submodule "modules/volley"]
+	path = modules/volley
+	url = git@github.com:CodeAndMagic/android-promise-volley.git
