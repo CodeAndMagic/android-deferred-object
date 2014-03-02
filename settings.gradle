@@ -17,4 +17,4 @@
  * along with android-promise. If not, see <http://www.gnu.org/licenses/>.
  */
 
-include ':core', ':modules:apache', ':sample'
+include ':core', ':modules:volley', ':sample'

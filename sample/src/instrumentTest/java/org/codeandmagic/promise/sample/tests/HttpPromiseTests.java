@@ -23,7 +23,6 @@ import android.test.ActivityInstrumentationTestCase2;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.codeandmagic.promise.Callback;
-import org.codeandmagic.promise.Promise;
 import org.codeandmagic.promise.http.HttpPromise;
 import org.codeandmagic.promise.sample.MainActivity;
 

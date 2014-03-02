@@ -41,8 +41,8 @@ dependencies {
     compile 'com.android.support:support-v4:+'
     compile 'com.android.support:appcompat-v7:+'
     compile project(':core')
+    compile project(':modules:volley')
 
     instrumentTestCompile('com.google.dexmaker:dexmaker:1.0')
     instrumentTestCompile('com.google.dexmaker:dexmaker-mockito:1.0')
-
 }
