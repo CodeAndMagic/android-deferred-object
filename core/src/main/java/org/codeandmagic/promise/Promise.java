@@ -43,8 +43,8 @@ public interface Promise<Success> extends Promise3<Success, Throwable, Float> {
 
     @Override
     public Promise<Success> andThen(Callback<Success> onSuccess,
-                                          Callback<Throwable> onFailure,
-                                          Callback<Float> onProgress);
+                                    Callback<Throwable> onFailure,
+                                    Callback<Float> onProgress);
 
     @Override
     public Promise<Success> flatRecover(final Transformation<Throwable, Either<Throwable, Success>> transform);

@@ -94,8 +94,8 @@ public interface Promise3<Success, Failure, Progress> {
      * @return
      */
     public Promise3<Success, Failure, Progress> andThen(Callback<Success> onSuccess,
-                                                       Callback<Failure> onFailure,
-                                                       Callback<Progress> onProgress);
+                                                        Callback<Failure> onFailure,
+                                                        Callback<Progress> onProgress);
 
     /* -------------------------------------------------------------------------------------- */
     // Transformations
