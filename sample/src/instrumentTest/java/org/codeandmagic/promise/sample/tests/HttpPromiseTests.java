@@ -24,7 +24,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.codeandmagic.promise.Callback;
 import org.codeandmagic.promise.http.HttpPromise;
-import org.codeandmagic.promise.sample.MainActivity;
+import org.codeandmagic.promise.sample.MergePromiseActivity;
 
 import static org.mockito.Mockito.*;
 
@@ -32,10 +32,10 @@ import static org.mockito.Mockito.*;
  * Created by evelina on 26/02/2014.
  */
 
-public class HttpPromiseTests extends ActivityInstrumentationTestCase2<MainActivity> {
+public class HttpPromiseTests extends ActivityInstrumentationTestCase2<MergePromiseActivity> {
 
     public HttpPromiseTests() {
-        super(MainActivity.class);
+        super(MergePromiseActivity.class);
     }
 
     public void testHttpGet() {
