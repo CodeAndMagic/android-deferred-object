@@ -1,0 +1,7 @@
+[
+    {
+        "title": "Merge Promise Sample",
+        "description": "Download multiple images and wait for all to complete before doing an action.",
+        "activity": "org.codeandmagic.promise.sample.MergePromiseActivity"
+    }
+]

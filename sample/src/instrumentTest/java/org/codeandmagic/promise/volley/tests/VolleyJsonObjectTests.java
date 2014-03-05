@@ -6,7 +6,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import org.codeandmagic.promise.Callback;
 import org.codeandmagic.promise.Transformation;
-import org.codeandmagic.promise.sample.MainActivity;
+import org.codeandmagic.promise.sample.MergePromiseActivity;
 import org.codeandmagic.promise.volley.VolleyJsonPromise;
 import org.codeandmagic.promise.volley.VolleyRequest.RObject;
 import org.json.JSONObject;
@@ -16,13 +16,13 @@ import static org.mockito.Mockito.*;
 /**
  * Created by evelina on 02/03/2014.
  */
-public class VolleyJsonObjectTests extends ActivityInstrumentationTestCase2<MainActivity> {
+public class VolleyJsonObjectTests extends ActivityInstrumentationTestCase2<MergePromiseActivity> {
 
     public static final String SUCCESS_URL = "http://date.jsontest.com/";
     public static final String FAILURE_URL = "http://example.com/";
 
     public VolleyJsonObjectTests() {
-        super(MainActivity.class);
+        super(MergePromiseActivity.class);
     }
 
     public void testSuccessRequest() {
