@@ -7,7 +7,7 @@ import com.android.volley.toolbox.Volley;
 import org.codeandmagic.promise.Callback;
 import org.codeandmagic.promise.Transformation;
 import org.codeandmagic.promise.sample.MainActivity;
-import org.codeandmagic.promise.volley.VolleyPromise;
+import org.codeandmagic.promise.volley.VolleyJsonPromise;
 import org.codeandmagic.promise.volley.VolleyRequest.RObject;
 import org.json.JSONObject;
 
@@ -30,10 +30,10 @@ public class VolleyJsonObjectTests extends ActivityInstrumentationTestCase2<Main
         Callback<Throwable> failureCallback = mock(Callback.class);
 
         RequestQueue queue = Volley.newRequestQueue(getActivity().getApplicationContext());
-        VolleyPromise.jsonObjectPromise(queue, Method.GET, SUCCESS_URL, null)
+        VolleyJsonPromise.jsonObjectPromise(queue, Method.GET, SUCCESS_URL, null)
                 .onSuccess(successCallback)
                 .onFailure(failureCallback)
-                .pipe(VolleyPromise.<JSONObject>jsonObjectPipe(queue, SUCCESS_URL, null))
+                .pipe(VolleyJsonPromise.<JSONObject>jsonObjectPipe(queue, SUCCESS_URL, null))
                 .onSuccess(successCallback)
                 .onFailure(failureCallback);
 
@@ -52,7 +52,7 @@ public class VolleyJsonObjectTests extends ActivityInstrumentationTestCase2<Main
         Callback<Throwable> failureCallback = mock(Callback.class);
 
         RequestQueue queue = Volley.newRequestQueue(getActivity().getApplicationContext());
-        VolleyPromise.jsonObjectPromise(queue, Method.GET, FAILURE_URL, null)
+        VolleyJsonPromise.jsonObjectPromise(queue, Method.GET, FAILURE_URL, null)
                 .onSuccess(successCallback)
                 .onFailure(failureCallback);
 
@@ -71,7 +71,7 @@ public class VolleyJsonObjectTests extends ActivityInstrumentationTestCase2<Main
         Callback<Throwable> failureCallback = mock(Callback.class);
 
         RequestQueue queue = Volley.newRequestQueue(getActivity().getApplicationContext());
-        VolleyPromise.jsonObjectPromise(Method.GET, SUCCESS_URL, null)
+        VolleyJsonPromise.jsonObjectPromise(Method.GET, SUCCESS_URL, null)
                 .map(new Transformation<RObject, RObject>() {
                     @Override
                     public RObject transform(RObject value) {
@@ -79,7 +79,7 @@ public class VolleyJsonObjectTests extends ActivityInstrumentationTestCase2<Main
                         return value;
                     }
                 })
-                .pipe(VolleyPromise.queueJsonObjectRequest(queue))
+                .pipe(VolleyJsonPromise.queueJsonObjectRequest(queue))
                 .onSuccess(successCallback)
                 .onFailure(failureCallback);
 
