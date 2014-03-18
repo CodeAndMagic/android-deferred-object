@@ -34,18 +34,18 @@ public class DownloadPromise extends AbstractPromise<File> {
 
     private static final ThreadPoolExecutor DEFAULT_EXECUTOR = new ScheduledThreadPoolExecutor(4);
 
-    private final URL url;
-    private final File output;
-    private final ThreadPoolExecutor executor;
+    private final URL mUrl;
+    private final File mOutput;
+    private final ThreadPoolExecutor mExecutor;
 
     public DownloadPromise(final URL url, final File output) {
         this(url, output, DEFAULT_EXECUTOR);
     }
 
     public DownloadPromise(final URL url, final File output, final ThreadPoolExecutor executor) {
-        this.url = url;
-        this.output = output;
-        this.executor = executor;
+        mUrl = url;
+        mOutput = output;
+        mExecutor = executor;
 
         executor.submit(new Runnable() {
             @Override

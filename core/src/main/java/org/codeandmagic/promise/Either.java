@@ -98,18 +98,18 @@ public abstract class Either<T1, T2> {
 
 
     public boolean isLeft() {
-      return false;
+        return false;
     }
 
     public T1 getLeft() {
-       return null;
+        return null;
     }
 
     public boolean isRight() {
-      return false;
+        return false;
     }
 
     public T2 getRight() {
-       return null;
+        return null;
     }
 }

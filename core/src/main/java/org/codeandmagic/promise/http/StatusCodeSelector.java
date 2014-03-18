@@ -31,6 +31,7 @@ import java.util.Arrays;
  * Created by evelina on 26/02/2014.
  */
 public abstract class StatusCodeSelector implements Transformation<HttpResponse, Either<Throwable, HttpResponse>> {
+
     public abstract boolean isAcceptable(int statusCode);
 
     @Override

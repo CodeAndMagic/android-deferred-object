@@ -1,7 +1,12 @@
 [
     {
-        "title": "Merge Promise Sample",
-        "description": "Download multiple images and wait for all to complete before doing an action.",
-        "activity": "org.codeandmagic.promise.sample.MergePromiseActivity"
+        "title": "Planets Sample",
+        "description": "Download multiple images and wait for all to complete before doing an action using Merge Promise.",
+        "activity": "org.codeandmagic.promise.sample.PlanetsActivity"
+    },
+    {
+        "title": "Patterns Sample",
+        "description": "Download a JSON with multiple images in a GridView using Volley Promise module.",
+        "activity": "org.codeandmagic.promise.sample.PatternsActivity"
     }
 ]

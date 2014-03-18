@@ -36,7 +36,7 @@ import java.net.URL;
 
 import static android.os.Environment.*;
 
-public class MergePromiseActivity extends ActionBarActivity {
+public class PlanetsActivity extends ActionBarActivity {
 
     private final static String EARTH = "https://farm3.staticflickr.com/2116/2222523978_f48bf28571_o.jpg";
     private final static String MARS = "https://farm6.staticflickr.com/5328/6897598788_a748a78bb8_o.png";
@@ -48,7 +48,7 @@ public class MergePromiseActivity extends ActionBarActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.merge_promise_activity);
+        setContentView(R.layout.planets_activity);
 
         log = (TextView) findViewById(R.id.log);
 
@@ -77,6 +77,7 @@ public class MergePromiseActivity extends ActionBarActivity {
                     public void onCallback(File[] result) {
                         start.setText(R.string.all_done);
                         start.setEnabled(true);
+                        reset(progress1, progress2, progress3);
                     }
                 })
                 .onFailure(new Callback<Throwable>() {
@@ -89,7 +90,7 @@ public class MergePromiseActivity extends ActionBarActivity {
                 .onProgress(new Callback<Float>() {
                     @Override
                     public void onCallback(Float result) {
-                        log.append("Downloaded " + result + " out of 3.");
+                        log.append(" (" + result + " out of 3)");
                     }
                 });
 
@@ -137,7 +138,7 @@ public class MergePromiseActivity extends ActionBarActivity {
         return new Callback<File>() {
             @Override
             public void onCallback(File result) {
-                log.append("\nDownloaded file " + result.getPath());
+                log.append("\nFile stored in " + result.getPath());
                 done(textView);
             }
         };

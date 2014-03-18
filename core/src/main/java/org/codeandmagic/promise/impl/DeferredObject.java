@@ -67,14 +67,14 @@ public class DeferredObject<Success> extends AbstractPromise<Success> {
 
     public static class MergePromise<T, S extends T> extends DeferredObject<T[]> {
 
-        private final Promise<S>[] promises;
-        private final int length;
-        private final int allowedFailures;
+        private final Promise<S>[] mPromises;
+        private final int mLength;
+        private final int mAllowedFailures;
 
-        private final Throwable[] failures;
-        private final T[] successes;
-        private int countCompleted = 0;
-        private int countFailures = 0;
+        private final Throwable[] mFailures;
+        private final T[] mSuccesses;
+        private int mCountCompleted = 0;
+        private int mCountFailures = 0;
 
 
         private Callback<Throwable> newFailureCallback(final int index) {
@@ -82,14 +82,14 @@ public class DeferredObject<Success> extends AbstractPromise<Success> {
                 @Override
                 public void onCallback(Throwable result) {
                     synchronized (MergePromise.this) {
-                        failures[index] = result;
-                        countCompleted++;
-                        countFailures++;
-                        MergePromise.this.progress((float) countCompleted);
+                        mFailures[index] = result;
+                        mCountCompleted++;
+                        mCountFailures++;
+                        MergePromise.this.progress((float) mCountCompleted);
 
-                        if (countFailures > allowedFailures) {
+                        if (mCountFailures > mAllowedFailures) {
                             MergePromise.this.failure(new MergeFailure("Failed MergePromise because more than '"
-                                    + allowedFailures + "' promises have failed.", failures));
+                                    + mAllowedFailures + "' promises have failed.", mFailures));
                         }
                     }
                 }
@@ -101,12 +101,12 @@ public class DeferredObject<Success> extends AbstractPromise<Success> {
                 @Override
                 public void onCallback(S result) {
                     synchronized (MergePromise.this) {
-                        successes[index] = result;
-                        countCompleted++;
-                        MergePromise.this.progress((float) countCompleted);
+                        mSuccesses[index] = result;
+                        mCountCompleted++;
+                        MergePromise.this.progress((float) mCountCompleted);
 
-                        if (countCompleted == length) {
-                            MergePromise.this.success(successes);
+                        if (mCountCompleted == mLength) {
+                            MergePromise.this.success(mSuccesses);
                         }
                     }
                 }
@@ -118,14 +118,14 @@ public class DeferredObject<Success> extends AbstractPromise<Success> {
                 throw new IllegalArgumentException("You need at least one promise.");
             }
 
-            this.promises = promises;
-            this.length = promises.length;
-            this.allowedFailures = allowedFailures < 0 ? promises.length : allowedFailures;
+            mPromises = promises;
+            mLength = promises.length;
+            mAllowedFailures = allowedFailures < 0 ? promises.length : allowedFailures;
 
-            this.failures = new Throwable[length];
-            this.successes = (T[]) Array.newInstance(clazz, length);
+            mFailures = new Throwable[mLength];
+            mSuccesses = (T[]) Array.newInstance(clazz, mLength);
 
-            for (int i = 0; i < length; ++i) {
+            for (int i = 0; i < mLength; ++i) {
                 final Promise<S> promise = promises[i];
                 promise.onSuccess(newSuccessCallback(i));
                 promise.onFailure(newFailureCallback(i));

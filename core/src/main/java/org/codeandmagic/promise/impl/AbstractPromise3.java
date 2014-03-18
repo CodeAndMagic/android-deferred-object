@@ -40,29 +40,29 @@ public class AbstractPromise3<Success, Failure, Progress> implements Promise3<Su
     /*
     * The state of this Deferred Object
     */
-    protected Promise3.State state = State.PENDING;
+    protected Promise3.State mState = State.PENDING;
     /**
      * The value or this deferred object if it has been result or null otherwise
      */
-    protected Success result;
+    protected Success mResult;
     /**
      * The rejection reason of this deferred object if it has been failure or null otherwise
      */
-    protected Failure failure;
+    protected Failure mFailure;
 
-    protected final List<Callback<Success>> successCallbacks;
-    protected final List<Callback<Failure>> failureCallbacks;
-    protected final List<Callback<Progress>> progressCallbacks;
-    protected final List<Callback<Either<Failure, Success>>> completeCallbacks;
+    protected final List<Callback<Success>> mSuccessCallbacks;
+    protected final List<Callback<Failure>> mFailureCallbacks;
+    protected final List<Callback<Progress>> mProgressCallbacks;
+    protected final List<Callback<Either<Failure, Success>>> mCompleteCallbacks;
 
     private AbstractPromise3(List<Callback<Success>> successCallbacks,
                              List<Callback<Failure>> failureCallbacks,
                              List<Callback<Progress>> progressCallbacks,
                              List<Callback<Either<Failure, Success>>> completeCallbacks) {
-        this.successCallbacks = successCallbacks;
-        this.failureCallbacks = failureCallbacks;
-        this.progressCallbacks = progressCallbacks;
-        this.completeCallbacks = completeCallbacks;
+        mSuccessCallbacks = successCallbacks;
+        mFailureCallbacks = failureCallbacks;
+        mProgressCallbacks = progressCallbacks;
+        mCompleteCallbacks = completeCallbacks;
     }
 
     public AbstractPromise3() {
@@ -78,36 +78,36 @@ public class AbstractPromise3<Success, Failure, Progress> implements Promise3<Su
 
 
     protected void success(final Success resolved) {
-        if (state == State.PENDING) {
-            this.result = resolved;
-            this.state = State.SUCCESS;
+        if (mState == State.PENDING) {
+            this.mResult = resolved;
+            this.mState = State.SUCCESS;
             triggerSuccess();
         } else {
-            throw new IllegalStateException("Can't complete a Promise3 which is in state '" + state.name() + "'.");
+            throw new IllegalStateException("Can't complete a Promise3 which is in mState '" + mState.name() + "'.");
         }
     }
 
     protected final void triggerSuccess() {
         triggerCompleted();
-        for (final Callback<Success> s : successCallbacks) {
-            s.onCallback(result);
+        for (final Callback<Success> s : mSuccessCallbacks) {
+            s.onCallback(mResult);
         }
     }
 
     protected void failure(final Failure failure) {
-        if (state == State.PENDING) {
-            this.failure = failure;
-            this.state = State.FAILED;
+        if (mState == State.PENDING) {
+            this.mFailure = failure;
+            this.mState = State.FAILED;
             triggerFailure();
         } else {
-            throw new IllegalStateException("Can't fail a Promise3 which is in state '" + state.name() + "'.");
+            throw new IllegalStateException("Can't fail a Promise3 which is in mState '" + mState.name() + "'.");
         }
     }
 
     protected final void triggerFailure() {
         triggerCompleted();
-        for (final Callback<Failure> f : failureCallbacks) {
-            f.onCallback(failure);
+        for (final Callback<Failure> f : mFailureCallbacks) {
+            f.onCallback(mFailure);
         }
     }
 
@@ -117,49 +117,49 @@ public class AbstractPromise3<Success, Failure, Progress> implements Promise3<Su
     }
 
     protected final void triggerCompleted() {
-        for (final Callback<Either<Failure, Success>> c : completeCallbacks) {
-            c.onCallback(isSuccess() ? new Right<Failure, Success>(result) : new Left<Failure, Success>(failure));
+        for (final Callback<Either<Failure, Success>> c : mCompleteCallbacks) {
+            c.onCallback(isSuccess() ? new Right<Failure, Success>(mResult) : new Left<Failure, Success>(mFailure));
         }
     }
 
     protected void progress(final Progress progress) {
-        if (State.PENDING.compareTo(state) < 0) return;
-        for (final Callback<Progress> p : progressCallbacks) {
+        if (State.PENDING.compareTo(mState) < 0) return;
+        for (final Callback<Progress> p : mProgressCallbacks) {
             p.onCallback(progress);
         }
     }
 
     @Override
     public Promise3.State state() {
-        return state;
+        return mState;
     }
 
     @Override
     public boolean isPending() {
-        return Promise3.State.PENDING == state;
+        return Promise3.State.PENDING == mState;
     }
 
     @Override
     public boolean isFailure() {
-        return State.FAILED == state;
+        return State.FAILED == mState;
     }
 
     @Override
     public boolean isSuccess() {
-        return State.SUCCESS == state;
+        return State.SUCCESS == mState;
     }
 
     @Override
     public Promise3<Success, Failure, Progress> andThen(Callback<Success> onSuccess,
-                                                       Callback<Failure> onFailure,
-                                                       Callback<Progress> onProgress) {
+                                                        Callback<Failure> onFailure,
+                                                        Callback<Progress> onProgress) {
 
-        if (onSuccess != null) successCallbacks.add(onSuccess);
-        if (onFailure != null) failureCallbacks.add(onFailure);
-        if (onProgress != null) progressCallbacks.add(onProgress);
+        if (onSuccess != null) mSuccessCallbacks.add(onSuccess);
+        if (onFailure != null) mFailureCallbacks.add(onFailure);
+        if (onProgress != null) mProgressCallbacks.add(onProgress);
 
-        if (onSuccess != null && isSuccess()) onSuccess.onCallback(result);
-        if (onFailure != null && isFailure()) onFailure.onCallback(failure);
+        if (onSuccess != null && isSuccess()) onSuccess.onCallback(mResult);
+        if (onFailure != null && isFailure()) onFailure.onCallback(mFailure);
 
         return this;
     }
@@ -181,9 +181,9 @@ public class AbstractPromise3<Success, Failure, Progress> implements Promise3<Su
 
     @Override
     public Promise3<Success, Failure, Progress> onComplete(Callback<Either<Failure, Success>> onComplete) {
-        if (onComplete != null) completeCallbacks.add(onComplete);
+        if (onComplete != null) mCompleteCallbacks.add(onComplete);
         if (onComplete != null && (isSuccess() || isFailure()))
-            onComplete.onCallback(isSuccess() ? new Right<Failure, Success>(result) : new Left<Failure, Success>(failure));
+            onComplete.onCallback(isSuccess() ? new Right<Failure, Success>(mResult) : new Left<Failure, Success>(mFailure));
 
         return this;
     }

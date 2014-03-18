@@ -24,10 +24,10 @@ package org.codeandmagic.promise;
  */
 public class MergeFailure extends Exception {
 
-    public final Throwable[] failures;
+    public final Throwable[] mFailures;
 
     public MergeFailure(String message, Throwable[] failures) {
         super(message);
-        this.failures = failures;
+        mFailures = failures;
     }
 }

@@ -21,18 +21,18 @@ import android.test.ActivityInstrumentationTestCase2;
 import org.codeandmagic.promise.Callback;
 import org.codeandmagic.promise.impl.DeferredObject;
 import org.codeandmagic.promise.Promise;
-import org.codeandmagic.promise.sample.MergePromiseActivity;
+import org.codeandmagic.promise.sample.PlanetsActivity;
 
 /**
  * Created by evelina on 23/02/2014.
  */
-public class RunOnUiThreadTests extends ActivityInstrumentationTestCase2<MergePromiseActivity> {
+public class RunOnUiThreadTests extends ActivityInstrumentationTestCase2<PlanetsActivity> {
 
     private String threadName1;
     private String threadName2;
 
     public RunOnUiThreadTests() {
-        super(MergePromiseActivity.class);
+        super(PlanetsActivity.class);
     }
 
     public void testRunOnUiThread() {
