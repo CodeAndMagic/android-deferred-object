@@ -1,0 +1,79 @@
+<!--
+  ~ Copyright (c) 2014 CodeAndMagic
+  ~ Cristian Vrabie, Evelina Vrabie
+  ~
+  ~ This file is part of android-promise.
+  ~ android-promise is free software: you can redistribute it and/or modify it
+  ~ under the terms of the GNU Lesser General Public License as published by the
+  ~ Free Software Foundation, either version 3 of the License,or (at your option)
+  ~ any later version.
+  ~
+  ~ android-promise is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+  ~ or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public License
+  ~ along with android-promise. If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              android:padding="32dp"
+              android:gravity="center_horizontal">
+
+
+    <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp">
+
+        <TextView
+                android:id="@+id/progress1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableTop="@drawable/bullet"
+                android:drawablePadding="8dp"
+                android:gravity="center"
+                android:text="@string/no_progress"/>
+
+        <TextView
+                android:id="@+id/progress2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="32dp"
+                android:drawableTop="@drawable/bullet"
+                android:drawablePadding="8dp"
+                android:gravity="center"
+                android:text="@string/no_progress"/>
+
+        <TextView
+                android:id="@+id/progress3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="32dp"
+                android:drawableTop="@drawable/bullet"
+                android:drawablePadding="8dp"
+                android:gravity="center"
+                android:text="@string/no_progress"/>
+    </LinearLayout>
+
+
+    <Button
+            android:id="@+id/start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:minWidth="150dp"
+            android:text="@string/start"/>
+
+    <TextView
+            android:id="@+id/log"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:singleLine="false"
+            android:minLines="3"/>
+</LinearLayout>
