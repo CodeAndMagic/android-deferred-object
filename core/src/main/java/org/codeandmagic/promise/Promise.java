@@ -42,6 +42,9 @@ public interface Promise<Success> extends Promise3<Success, Throwable, Float> {
     public <Success2> Promise<Success2> map(final Transformation<Success, Success2> transform);
 
     @Override
+    public <Success2> Promise<Success2> flatMap(final Transformation<Success, Either<Throwable, Success2>> transform);
+
+    @Override
     public Promise<Success> andThen(Callback<Success> onSuccess,
                                     Callback<Throwable> onFailure,
                                     Callback<Float> onProgress);
@@ -59,4 +62,20 @@ public interface Promise<Success> extends Promise3<Success, Throwable, Float> {
 
     @Override
     public Promise<Success> runOnUiThread();
+
+    /**
+     * <b>IMPORTANT NOTE</b>
+     * This method operates on the assumption that the Success of this Promise is an {@link java.util.Collection<T1>}.
+     * If not, it will fail with a {@link ClassCastException}.
+     * <p/>
+     * This method creates a list of Promises by applying a {@link Pipe} to each
+     * element in the {@link java.util.Collection<T1>}.
+     * <p/>
+     *
+     * @param transform the {@link Transformation} to be applied to each element
+     * @param <T1>
+     * @param <T2>
+     * @return
+     */
+    public <T1, T2> Promises<T2> split(Pipe<T1, T2> transform);
 }

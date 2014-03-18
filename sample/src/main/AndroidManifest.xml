@@ -37,7 +37,7 @@
 		</activity>
 
 		<activity android:name=".PlanetsActivity"/>
-		<activity android:name=".PatternsActivity"/>
+		<activity android:name=".patterns.PatternsActivity"/>
 
 	</application>
 

@@ -21,11 +21,15 @@ package org.codeandmagic.promise.impl;
 
 import org.codeandmagic.promise.*;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 /**
  * Created by cristian on 10/02/2014.
  */
 public class AbstractPromise<Success> extends AbstractPromise3<Success, Throwable, Float>
-        implements Promise<Success> {
+    implements Promise<Success> {
 
     @SuppressWarnings("unchecked")
     @Override
@@ -133,5 +137,23 @@ public class AbstractPromise<Success> extends AbstractPromise3<Success, Throwabl
     @Override
     public Promise<Success> runOnUiThread() {
         return (Promise<Success>) super.runOnUiThread();
+    }
+
+    @Override
+    public <T1, T2> Promises<T2> split(final Pipe<T1, T2> transform) {
+        final ProxyPromises<T2> proxy = new ProxyPromises<T2>();
+
+        this.onSuccess(new Callback<Success>() {
+            @Override
+            public void onCallback(Success result) {
+                final List<Promise<T2>> list = new ArrayList<Promise<T2>>();
+                for (T1 item : (Collection<T1>) result) {
+                    list.add(transform.transform(item));
+                }
+                proxy.setPromises(list);
+            }
+        });
+
+        return proxy;
     }
 }

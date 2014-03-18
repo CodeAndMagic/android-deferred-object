@@ -17,18 +17,27 @@
  * along with android-promise. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.codeandmagic.promise;
+package org.codeandmagic.promise.sample.patterns;
+
+import android.graphics.Bitmap;
 
 /**
- * Created by evelina on 05/03/2014.
+ * Created by evelina on 18/03/2014.
  */
-public interface Promises<Success>{
+class Pattern {
+    public final String id;
+    public final String title;
+    public final String imageUrl;
+    public final Bitmap bitmap;
 
-    <Success2> Promises<Success2> map(final Transformation<Success, Success2> transform);
+    public Pattern(String id, String title, String imageUrl, Bitmap bitmap) {
+        this.id = id;
+        this.title = title;
+        this.imageUrl = imageUrl;
+        this.bitmap = bitmap;
+    }
 
-    Promises<Success> onSuccess(Callback<Success> onSuccess);
-
-    Promises<Success> onFailure(Callback<Throwable> onFailure);
-
-    Promises<Success> runOnUiThread();
+    public Pattern withBitmap(Bitmap bitmap) {
+        return new Pattern(id, title, imageUrl, bitmap);
+    }
 }
