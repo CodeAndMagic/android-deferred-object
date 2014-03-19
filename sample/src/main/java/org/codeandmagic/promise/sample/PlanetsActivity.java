@@ -34,7 +34,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
-import static android.os.Environment.*;
+import static org.codeandmagic.promise.sample.Utils.getSdCardFile;
 
 public class PlanetsActivity extends ActionBarActivity {
 
@@ -96,20 +96,6 @@ public class PlanetsActivity extends ActionBarActivity {
 
     }
 
-    private File getSdCardOutput(String fileName) throws IOException {
-        final String sdCardState = getExternalStorageState();
-        if (MEDIA_MOUNTED.equals(sdCardState)) {
-            final File sdCard = getExternalStorageDirectory();
-            sdCard.mkdirs();
-            final File path = new File(sdCard, fileName);
-            if (!path.exists()) {
-                path.createNewFile();
-            }
-            return path;
-        }
-        throw new IOException("Can't write on the SDCard!");
-    }
-
     private void done(TextView progress) {
         progress.getCompoundDrawables()[1].setLevel(1);
     }
@@ -123,7 +109,7 @@ public class PlanetsActivity extends ActionBarActivity {
 
     private Promise<File> createPromise(String url, String fileName, TextView progress) {
         try {
-            return new DownloadPromise(new URL(url), getSdCardOutput(fileName))
+            return new DownloadPromise(new URL(url), getSdCardFile(fileName))
                 .runOnUiThread()
                 .onSuccess(successCallback(progress))
                 .onFailure(failureCallback(url))

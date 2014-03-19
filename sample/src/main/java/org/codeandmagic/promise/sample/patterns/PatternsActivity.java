@@ -19,22 +19,28 @@
 
 package org.codeandmagic.promise.sample.patterns;
 
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.widget.GridView;
 import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
 import org.codeandmagic.promise.*;
 import org.codeandmagic.promise.Either.Left;
 import org.codeandmagic.promise.Either.Right;
 import org.codeandmagic.promise.sample.R;
+import org.codeandmagic.promise.volley.DiskBitmapCache;
+import org.codeandmagic.promise.volley.ImageResult;
 import org.codeandmagic.promise.volley.VolleyImagePromise;
 import org.codeandmagic.promise.volley.VolleyJsonPromise;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.io.IOException;
 import java.util.List;
+
+import static org.codeandmagic.promise.sample.Utils.getSdCardDir;
 
 /**
  * Created by evelina on 18/03/2014.
@@ -45,17 +51,24 @@ public class PatternsActivity extends ActionBarActivity {
     private static final String URL = "http://www.colourlovers.com/api/patterns/new?format=json";
 
     private RequestQueue mRequestQueue;
+    private ImageLoader mImageLoader;
     private ImageAdapter mAdapter;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(org.codeandmagic.promise.sample.R.layout.patterns_activity);
+        setContentView(R.layout.patterns_activity);
 
         sImageSize = getWindowManager().getDefaultDisplay().getWidth() / 2;
 
         mRequestQueue = Volley.newRequestQueue(this);
+        try {
+            mImageLoader = new ImageLoader(mRequestQueue, new DiskBitmapCache(getSdCardDir("PATTERNS")));
+        } catch (IOException e) {
+            e.printStackTrace();
+            finish();
+        }
+
         mAdapter = new ImageAdapter(this);
         ((GridView) findViewById(R.id.grid)).setAdapter(mAdapter);
 
@@ -68,7 +81,6 @@ public class PatternsActivity extends ActionBarActivity {
      * 2. Parse the JSON and for each element which contains an URL
      * 2.1. Download an image and add it to the GridView adapter
      */
-    //TODO Add caching with Volley ImageLoader
     private void doMagic() {
         VolleyJsonPromise
             .jsonArrayPromise(mRequestQueue, URL)
@@ -86,11 +98,12 @@ public class PatternsActivity extends ActionBarActivity {
                 @Override
                 public Promise<Pattern> transform(final Pattern pattern) {
                     return VolleyImagePromise
-                        .imagePromise(mRequestQueue, pattern.imageUrl, sImageSize, sImageSize, Bitmap.Config.ARGB_8888)
-                        .map(new Transformation<Bitmap, Pattern>() {
+                        .imagePromise(mImageLoader, pattern.imageUrl, sImageSize, sImageSize)
+                        .map(new Transformation<ImageResult, Pattern>() {
                             @Override
-                            public Pattern transform(Bitmap value) {
-                                return pattern.withBitmap(value);
+                            public Pattern transform(ImageResult result) {
+                                logCached(result);
+                                return pattern.withBitmap(result.imageContainer.getBitmap());
                             }
                         });
                 }
@@ -102,6 +115,14 @@ public class PatternsActivity extends ActionBarActivity {
                     mAdapter.addItem(result);
                 }
             });
+    }
+
+    private void logCached(ImageResult result) {
+        if (result.fromCache) {
+            Log.i("PROMISE", result.imageContainer.getRequestUrl() + " is cached.");
+        } else {
+            Log.d("PROMISE", result.imageContainer.getRequestUrl() + " is NOT cached.");
+        }
     }
 
 }

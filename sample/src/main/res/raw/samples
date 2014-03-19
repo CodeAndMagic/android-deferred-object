@@ -7,6 +7,6 @@
     {
         "title": "Patterns Sample",
         "description": "Download a JSON with multiple images in a GridView using Volley Promise module.",
-        "activity": "org.codeandmagic.promise.sample.PatternsActivity"
+        "activity": "org.codeandmagic.promise.sample.patterns.PatternsActivity"
     }
 ]

@@ -2,15 +2,19 @@ package org.codeandmagic.promise.sample;
 
 import android.app.Activity;
 import android.content.res.Resources;
+import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static android.os.Environment.*;
 
 /**
  * Created by evelina on 05/03/2014.
@@ -51,6 +55,7 @@ public class Utils {
             return samples;
 
         } catch (Exception e) {
+            Log.e("PROMISE", "Can't parse the samples!", e);
             return Collections.emptyList();
         } finally {
             if (reader != null) {
@@ -66,5 +71,29 @@ public class Utils {
     private static Sample parseSample(JSONObject json) throws Exception {
         final Class<Activity> activity = (Class<Activity>) Class.forName(json.getString("activity"));
         return new Sample(json.getString("title"), json.getString("description"), activity);
+    }
+
+    public static File getSdCardFile(String fileName) throws IOException {
+        final String sdCardState = getExternalStorageState();
+        if (MEDIA_MOUNTED.equals(sdCardState)) {
+            final File sdCard = getExternalStorageDirectory();
+            sdCard.mkdirs();
+            final File path = new File(sdCard, fileName);
+            if (!path.exists()) {
+                path.createNewFile();
+            }
+            return path;
+        }
+        throw new IOException("SDCard not mounted.");
+    }
+
+    public static File getSdCardDir(String dirName) throws IOException {
+        final String sdCardState = getExternalStorageState();
+        if (MEDIA_MOUNTED.equals(sdCardState)) {
+            final File path = new File(getExternalStorageDirectory(), dirName);
+            path.mkdir();
+            return path;
+        }
+        throw new IOException("SDCard not mounted.");
     }
 }
