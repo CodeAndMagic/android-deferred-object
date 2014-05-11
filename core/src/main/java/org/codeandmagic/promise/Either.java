@@ -24,6 +24,18 @@ package org.codeandmagic.promise;
  */
 public abstract class Either<T1, T2> {
 
+    public static interface F0<T1> {
+        T1 apply() throws Exception;
+    }
+
+    public static <T1> Either<Throwable, T1> trying(F0<T1> block) {
+        try {
+            return new Right<>(block.apply());
+        } catch (Throwable e) {
+            return new Left<>(e);
+        }
+    }
+
     public static final class Left<T1, T2> extends Either<T1, T2> {
 
         private final T1 left;

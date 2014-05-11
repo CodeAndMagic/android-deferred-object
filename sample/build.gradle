@@ -17,11 +17,17 @@
  * along with android-promise. If not, see <http://www.gnu.org/licenses/>.
  */
 
- apply plugin: 'android'
+apply plugin: 'android'
+apply plugin: 'retrolambda'
 
 android {
     compileSdkVersion 19
     buildToolsVersion "19.0.3"
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 
     defaultConfig {
         minSdkVersion 10
@@ -29,12 +35,23 @@ android {
         versionCode 1
         versionName "1.0"
     }
+
     buildTypes {
         release {
             runProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
+
+    lintOptions {
+        abortOnError false
+    }
+}
+
+retrolambda {
+    jdk System.getenv("JAVA8_HOME")
+    oldJdk System.getenv("JAVA7_HOME")
+    javaVersion JavaVersion.VERSION_1_7
 }
 
 dependencies {
@@ -43,6 +60,8 @@ dependencies {
     compile project(':core')
     compile project(':modules:volley')
 
-    instrumentTestCompile('com.google.dexmaker:dexmaker:1.0')
-    instrumentTestCompile('com.google.dexmaker:dexmaker-mockito:1.0')
+    androidTestCompile('com.google.dexmaker:dexmaker:1.0')
+    androidTestCompile('com.google.dexmaker:dexmaker-mockito:1.0')
 }
+
+

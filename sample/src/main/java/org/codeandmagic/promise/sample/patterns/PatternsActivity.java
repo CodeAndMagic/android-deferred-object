@@ -20,27 +20,23 @@
 package org.codeandmagic.promise.sample.patterns;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.GridView;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
-import org.codeandmagic.promise.*;
-import org.codeandmagic.promise.Either.Left;
-import org.codeandmagic.promise.Either.Right;
 import org.codeandmagic.promise.sample.R;
-import org.codeandmagic.promise.volley.DiskBitmapCache;
+import org.codeandmagic.promise.volley.BitmapLruCache;
 import org.codeandmagic.promise.volley.ImageResult;
 import org.codeandmagic.promise.volley.VolleyImagePromise;
 import org.codeandmagic.promise.volley.VolleyJsonPromise;
-import org.json.JSONArray;
-import org.json.JSONException;
 
-import java.io.IOException;
-import java.util.List;
-
-import static org.codeandmagic.promise.sample.Utils.getSdCardDir;
+import static org.codeandmagic.promise.Either.trying;
 
 /**
  * Created by evelina on 18/03/2014.
@@ -50,78 +46,76 @@ public class PatternsActivity extends ActionBarActivity {
     public static int sImageSize;
     private static final String URL = "http://www.colourlovers.com/api/patterns/new?format=json";
 
-    private RequestQueue mRequestQueue;
-    private ImageLoader mImageLoader;
-    private ImageAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.patterns_activity);
-
         sImageSize = getWindowManager().getDefaultDisplay().getWidth() / 2;
 
-        mRequestQueue = Volley.newRequestQueue(this);
-        try {
-            mImageLoader = new ImageLoader(mRequestQueue, new DiskBitmapCache(getSdCardDir("PATTERNS")));
-        } catch (IOException e) {
-            e.printStackTrace();
-            finish();
+        if (savedInstanceState == null) {
+            getSupportFragmentManager()
+                .beginTransaction()
+                .replace(android.R.id.content, PatternsFragment.newInstance())
+                .commit();
+        }
+    }
+
+
+    private static class PatternsFragment extends Fragment {
+
+        private RequestQueue mRequestQueue;
+        private ImageLoader mImageLoader;
+        private ImageAdapter mAdapter;
+
+        public static PatternsFragment newInstance() {
+            return new PatternsFragment();
         }
 
-        mAdapter = new ImageAdapter(this);
-        ((GridView) findViewById(R.id.grid)).setAdapter(mAdapter);
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setRetainInstance(true);
+        }
 
-        doMagic();
-    }
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            return inflater.inflate(R.layout.patterns_fragment, container, false);
+        }
 
-    /**
-     * The ENTIRE code needed to:
-     * 1. Retrieve a JSON
-     * 2. Parse the JSON and for each element which contains an URL
-     * 2.1. Download an image and add it to the GridView adapter
-     */
-    private void doMagic() {
-        VolleyJsonPromise
-            .jsonArrayPromise(mRequestQueue, URL)
-            .flatMap(new Transformation<JSONArray, Either<Throwable, List<Pattern>>>() {
-                @Override
-                public Either<Throwable, List<Pattern>> transform(JSONArray value) {
-                    try {
-                        return new Right<Throwable, List<Pattern>>(PatternDeserializer.getInstance().deserialize(value));
-                    } catch (JSONException e) {
-                        return new Left<Throwable, List<Pattern>>(e);
-                    }
-                }
-            })
-            .split(new Pipe<Pattern, Pattern>() {
-                @Override
-                public Promise<Pattern> transform(final Pattern pattern) {
-                    return VolleyImagePromise
+        @Override
+        public void onActivityCreated(Bundle savedInstanceState) {
+            super.onActivityCreated(savedInstanceState);
+            if (mAdapter == null) {
+                mRequestQueue = Volley.newRequestQueue(getActivity());
+                mImageLoader = new ImageLoader(mRequestQueue, new BitmapLruCache());
+                mAdapter = new ImageAdapter(getActivity());
+                ((GridView) getView().findViewById(R.id.grid)).setAdapter(mAdapter);
+                doMagic();
+            } else {
+                ((GridView) getView().findViewById(R.id.grid)).setAdapter(mAdapter);
+            }
+        }
+
+        /**
+         * The ENTIRE code needed to:
+         * 1. Retrieve a JSON
+         * 2. Parse the JSON and for each element which contains an URL
+         * 2.1. Download an image and add it to the GridView adapter
+         */
+        private void doMagic() {
+            VolleyJsonPromise
+                .jsonArrayPromise(mRequestQueue, URL)
+                .flatMap(value -> trying(() -> PatternDeserializer.getInstance().deserialize(value)))
+                .split((Pattern pattern) -> VolleyImagePromise
                         .imagePromise(mImageLoader, pattern.imageUrl, sImageSize, sImageSize)
-                        .map(new Transformation<ImageResult, Pattern>() {
-                            @Override
-                            public Pattern transform(ImageResult result) {
-                                logCached(result);
-                                return pattern.withBitmap(result.imageContainer.getBitmap());
-                            }
-                        });
-                }
-            })
-            .runOnUiThread()
-            .onSuccess(new Callback<Pattern>() {
-                @Override
-                public void onCallback(Pattern result) {
-                    mAdapter.addItem(result);
-                }
-            });
-    }
+                        .map(result -> pattern.withBitmap(result.imageContainer.getBitmap()))
+                )
+                .runOnUiThread()
+                .onSuccess(mAdapter::addItem);
+        }
 
-    private void logCached(ImageResult result) {
-        if (result.fromCache) {
-            Log.i("PROMISE", result.imageContainer.getRequestUrl() + " is cached.");
-        } else {
-            Log.d("PROMISE", result.imageContainer.getRequestUrl() + " is NOT cached.");
+        private void logCached(ImageResult result) {
+            Log.i("PROMISE", result.imageContainer.getRequestUrl() + (result.fromCache ? " is cached." : " is NOT cached."));
         }
     }
 
