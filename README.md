@@ -17,7 +17,7 @@ You can pipe promises so the pieces of asynchronous code gets executed serially 
 
 A **Promise** is a immutable version of a **DeferredObject**. All DeferredObjects are Promises which is the most generic term and it's preferred. Not all Promises are necessarily a DeferredObject. 
 
-On a DeferredObject you have access to the actual **resolve** and **reject** methods which is obviously useful when you want to write your own Deferred. But most library code should return a Promise to prevent users of that library to mess with the internal workings of the library. For example in case of a async HTTP call if would be weird if someone other than the actual piece of code that does the HTTP call fires the resolved callbacks.
+On a DeferredObject you have access to the actual **resolve** and **reject** methods which is obviously useful when you want to write your own Deferred. But most library code should return a Promise to prevent users of that library to mess with the internal workings of the library. For example in case of a async HTTP call it would be weird if someone other than the actual piece of code that does the HTTP call fires the resolved callbacks.
 
 ## Why/When should I use the Deferred Object / Promise pattern?
 The DeferredObject/Promise pattern can help you to better organise your code, especially the asynchronous type. It also makes it really easy to merge and pipe the execution of different pieces of asynchronous code, which otherwise would get really messy to code. 
